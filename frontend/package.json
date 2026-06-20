@@ -1,0 +1,11 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm --prefix ./buyer-portal run dev\" \"npm --prefix ./main-site run dev\" \"npm --prefix ./seller-portal run dev\" \"npm --prefix ./retail-portal run dev\" --names \"buyer,main,seller,retail\" --prefix-colors \"bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold\""
+  }
+}
