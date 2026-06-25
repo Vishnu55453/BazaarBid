@@ -19,7 +19,11 @@ const seedPlans = async () => {
                     maxAuctionsPerMonth: 2,
                     maxBidsPerMonth: 0,
                     canViewCompetitors: false,
-                    canOfferDiscounts: false
+                    canOfferDiscounts: false,
+                    canFilterVerifiedSellers: false,
+                    canViewAnalytics: false,
+                    hasPremiumBadge: false,
+                    canViewDemandHeatmaps: false
                 }
             },
             {
@@ -30,7 +34,11 @@ const seedPlans = async () => {
                     maxAuctionsPerMonth: -1, // Unlimited
                     maxBidsPerMonth: 0,
                     canViewCompetitors: false,
-                    canOfferDiscounts: false
+                    canOfferDiscounts: false,
+                    canFilterVerifiedSellers: true,
+                    canViewAnalytics: true,
+                    hasPremiumBadge: false,
+                    canViewDemandHeatmaps: false
                 }
             },
             {
@@ -41,7 +49,11 @@ const seedPlans = async () => {
                     maxAuctionsPerMonth: 0,
                     maxBidsPerMonth: 5,
                     canViewCompetitors: false,
-                    canOfferDiscounts: false
+                    canOfferDiscounts: false,
+                    canFilterVerifiedSellers: false,
+                    canViewAnalytics: false,
+                    hasPremiumBadge: false,
+                    canViewDemandHeatmaps: false
                 }
             },
             {
@@ -52,7 +64,11 @@ const seedPlans = async () => {
                     maxAuctionsPerMonth: 0,
                     maxBidsPerMonth: -1, // Unlimited
                     canViewCompetitors: true,
-                    canOfferDiscounts: true
+                    canOfferDiscounts: true,
+                    canFilterVerifiedSellers: false,
+                    canViewAnalytics: false,
+                    hasPremiumBadge: true,
+                    canViewDemandHeatmaps: true
                 }
             }
         ];

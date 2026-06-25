@@ -1,4 +1,22 @@
 const Order = require('../models/Order');
+const Auction = require('../models/Auction');
+const User = require('../models/User');
+const SubscriptionPlan = require('../models/SubscriptionPlan');
+
+// Helper to determine active plan features
+const getUserPlanFeatures = async (userObjOrId) => {
+    let user = userObjOrId;
+    if (!user.subscription) {
+        user = await User.findById(user._id || user.id || userObjOrId);
+    }
+    
+    let planCode = user?.subscription?.planCode;
+    if (!planCode) {
+        planCode = user?.role === 'kirana_user' ? 'free_buyer' : 'free_seller';
+    }
+    const plan = await SubscriptionPlan.findOne({ planCode });
+    return plan?.features || {};
+};
 
 // Helper: Get date X days ago
 const getPastDate = (days) => {
@@ -109,7 +127,93 @@ const getRetailerAnalytics = async (req, res) => {
     }
 };
 
+// @desc    Get Price Trends (Premium Kirana User)
+// @route   GET /api/analytics/price-trends
+// @access  Private
+const getPriceTrends = async (req, res) => {
+    try {
+        const features = await getUserPlanFeatures(req.user);
+        if (!features.canViewAnalytics) {
+            return res.status(403).json({
+                message: 'Market Insights is a premium feature. Please upgrade your plan to view price trends.',
+                requiresUpgrade: true
+            });
+        }
+
+        const { category = 'vegetables' } = req.query;
+        
+        // Simple mock aggregation for demo purposes (real would aggregate winning bids)
+        // Returning a 30-day trend curve
+        const chartData = [];
+        for (let i = 29; i >= 0; i -= 2) {
+            const d = getPastDate(i);
+            const dateStr = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+            // Generate a realistic-looking price curve
+            const basePrice = category === 'fruits' ? 80 : 40;
+            const fluctuation = Math.sin(i) * 5 + (Math.random() * 4 - 2);
+            chartData.push({
+                date: dateStr,
+                averagePrice: Math.max(10, Math.round(basePrice + fluctuation))
+            });
+        }
+
+        res.json({
+            success: true,
+            category,
+            chartData
+        });
+    } catch (error) {
+        console.error('Price Trends Error:', error);
+        res.status(500).json({ message: 'Failed to load price trends', error: error.message });
+    }
+};
+
+// @desc    Get Demand Heatmap (Premium Big Market Seller)
+// @route   GET /api/analytics/demand-heatmap
+// @access  Private
+const getDemandHeatmap = async (req, res) => {
+    try {
+        const features = await getUserPlanFeatures(req.user);
+        if (!features.canViewDemandHeatmaps) {
+            return res.status(403).json({
+                message: 'Demand Heatmaps is a premium feature. Please upgrade your plan to view it.',
+                requiresUpgrade: true
+            });
+        }
+
+        // Aggregate open auctions by city/area
+        const heatmapData = await Auction.aggregate([
+            { $match: { status: 'open' } },
+            { 
+                $group: { 
+                    _id: "$deliveryAddress.city", 
+                    activeAuctions: { $sum: 1 },
+                    totalQuantityRequired: { $sum: { $sum: "$items.quantity" } }
+                } 
+            },
+            { $sort: { activeAuctions: -1 } },
+            { $limit: 10 }
+        ]);
+
+        const formattedData = heatmapData.map(item => ({
+            location: item._id || 'Unknown',
+            activeAuctions: item.activeAuctions,
+            totalQuantityRequired: item.totalQuantityRequired
+        }));
+
+        res.json({
+            success: true,
+            heatmapData: formattedData
+        });
+    } catch (error) {
+        console.error('Demand Heatmap Error:', error);
+        res.status(500).json({ message: 'Failed to load demand heatmap', error: error.message });
+    }
+};
+
 module.exports = {
     getSellerAnalytics,
-    getRetailerAnalytics
+    getRetailerAnalytics,
+    getPriceTrends,
+    getDemandHeatmap
 };

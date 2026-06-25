@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 const mainItems = [
   {
@@ -37,6 +38,15 @@ const buyerItems = [
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16.01H9" />
+      </svg>
+    )
+  },
+  {
+    label: 'Market Insights',
+    to: '/buyer/insights',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
     )
   }
@@ -94,6 +104,8 @@ const profileItems = [
 ]
 
 export default function Sidebar() {
+  const { user } = useAuth();
+
   const renderList = (title, items) => (
     <div className="flex flex-col gap-2">
       {title && (
@@ -142,22 +154,39 @@ export default function Sidebar() {
         {renderList('Settings', profileItems)}
       </div>
 
-      {/* Mini Info Footer Card */}
-      <div className="mt-auto px-2 pt-6">
-        <div className="relative overflow-hidden rounded-2xl bg-slate-800 p-4 border border-slate-700">
-          <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl" />
-          
-          <div className="relative z-10 flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold text-blue-400 bg-blue-400/10 w-fit px-2 py-0.5 rounded-full uppercase tracking-wider">
-              Dual Role Mode
-            </span>
-            <p className="text-xs font-bold text-white mt-1">Kirana Merchant</p>
-            <p className="text-[10.5px] text-slate-400 leading-normal">
-              Toggle between bulk auction buying and local retail sales.
+      {/* Subscription Plan Status */}
+      {user && user.subscription && (
+        <div className="mt-auto px-2 pt-6">
+          <div className={`relative overflow-hidden rounded-2xl p-4 border flex flex-col gap-2 ${
+            user.subscription.planCode === 'premium_buyer' 
+              ? 'bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-amber-500/20' 
+              : 'bg-slate-800 border-slate-700'
+          }`}>
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Plan</span>
+              {user.subscription.planCode === 'premium_buyer' && (
+                <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              )}
+            </div>
+            <p className={`text-sm font-bold relative z-10 ${
+              user.subscription.planCode === 'premium_buyer' ? 'text-amber-400' : 'text-slate-300'
+            }`}>
+              {user.subscription.planCode === 'premium_buyer' ? 'Premium Retailer' : 'Free Retailer'}
             </p>
+            
+            {user.subscription.planCode === 'free_buyer' && (
+              <button 
+                onClick={() => window.location.href = '/profile'}
+                className="relative z-10 mt-1 w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-1.5 rounded transition-colors"
+              >
+                Upgrade Plan
+              </button>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </aside>
   )
 }

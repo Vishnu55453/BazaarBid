@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   User, Phone, Mail, MapPin, Store, ShieldCheck,
-  Building2, Edit3, Save, X, FileText, Hash
+  Building2, Edit3, Save, X, FileText, Hash, Crown
 } from 'lucide-react';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
@@ -257,6 +257,56 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Subscription & Billing (Read-Only) */}
+      {!editing && profile.subscription && (
+        <div className={`rounded-2xl shadow-sm border p-5 ${
+          profile.subscription.planCode === 'premium_seller' 
+            ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+            : 'bg-white border-gray-100'
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <Crown className={`w-5 h-5 mr-3 ${
+                profile.subscription.planCode === 'premium_seller' ? 'text-amber-500' : 'text-gray-400'
+              }`} />
+              <h3 className="font-bold text-gray-900">Subscription Plan</h3>
+            </div>
+            {profile.subscription.planCode === 'free_seller' && (
+              <button className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs rounded-full shadow-md hover:from-amber-600 hover:to-orange-600 transition">
+                Upgrade to Premium
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Current Plan</p>
+              <p className={`font-bold ${
+                profile.subscription.planCode === 'premium_seller' ? 'text-amber-600' : 'text-gray-800'
+              }`}>
+                {profile.subscription.planCode === 'premium_seller' ? 'Premium Supplier' : 'Free Supplier'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Bids Placed</p>
+              <p className="font-bold text-gray-800">
+                {profile.usageMetrics?.bidsThisMonth || 0}
+                {profile.subscription.planCode === 'free_seller' && ' / 5'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Billing Cycle</p>
+              <p className="font-bold text-gray-800">
+                {new Date(profile.subscription.billingCycleStart).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Status</p>
+              <p className="font-bold text-emerald-600">Active</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Details Cards ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

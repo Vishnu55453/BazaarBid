@@ -23,6 +23,8 @@ const authMiddleware = async (req, res, next) => {
 
     req.user = {
       id: user._id.toString(),
+      accountId: user.isStaff ? user.parentAccountId?.toString() : user._id.toString(),
+      isStaff: user.isStaff,
       role: user.role,
       email: user.email
     };

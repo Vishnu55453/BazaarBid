@@ -40,11 +40,12 @@ const createAuction = async (req, res) => {
 
             endTime,
             autoAward,
-            minRatingRequired
+            minRatingRequired,
+            verifiedSellersOnly
         } = req.body;
 
-        // Check if user is kirana_user
-        const buyer = await User.findById(req.user.id);
+        // Check if user is kirana_user (use accountId to support staff)
+        const buyer = await User.findById(req.user.accountId || req.user.id);
         if (!buyer || buyer.role !== 'kirana_user') {
             return res.status(403).json({ message: 'Only Kirana users can create auctions' });
         }
@@ -60,13 +61,31 @@ const createAuction = async (req, res) => {
             });
         }
 
+        if (verifiedSellersOnly && !features.canFilterVerifiedSellers) {
+            return res.status(403).json({
+                message: 'Filtering for verified sellers is a premium feature. Please upgrade your plan.',
+                requiresUpgrade: true
+            });
+        }
+
         // Calculate expected delivery date
         const expectedDeliveryDate = new Date();
         expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + deliveryTimeline);
 
+        // Handle delivery address from addressId or direct object
+        let finalDeliveryAddress = deliveryAddress || {};
+        if (req.body.addressId) {
+            const savedAddress = buyer.kiranaProfile?.asBuyer?.deliveryAddresses?.find(
+                addr => addr._id.toString() === req.body.addressId
+            );
+            if (savedAddress) {
+                finalDeliveryAddress = savedAddress;
+            }
+        }
+
         // Create auction
         const auction = new Auction({
-            buyerId: req.user.id,
+            buyerId: buyer._id,
             buyerType: 'kirana_user',
             items: items.map(item => ({
                 productName: item.productName,
@@ -80,12 +99,12 @@ const createAuction = async (req, res) => {
             allowPartialBids: allowPartialBids || false,
             preferredMarket: preferredMarket || 'any',
             deliveryAddress: {
-                shopName: buyer.kiranaProfile?.asBuyer?.deliveryAddress?.shopName || buyer.name,
-                area: deliveryAddress?.area || buyer.location?.area,
-                city: deliveryAddress?.city || buyer.location?.city,
-                pincode: deliveryAddress?.pincode || buyer.location?.pincode,
-                landmark: deliveryAddress?.landmark,
-                fullAddress: deliveryAddress?.fullAddress
+                shopName: finalDeliveryAddress.shopName || buyer.kiranaProfile?.asBuyer?.deliveryAddresses?.[0]?.shopName || buyer.name,
+                area: finalDeliveryAddress.area || buyer.location?.area,
+                city: finalDeliveryAddress.city || buyer.location?.city,
+                pincode: finalDeliveryAddress.pincode || buyer.location?.pincode,
+                landmark: finalDeliveryAddress.landmark,
+                fullAddress: finalDeliveryAddress.fullAddress
             },
             deliveryTimeline,
             expectedDeliveryDate,
@@ -94,7 +113,8 @@ const createAuction = async (req, res) => {
             endTime: new Date(endTime),
             autoAward: autoAward !== undefined ? autoAward : true,
             status: 'open',
-            minRatingRequired: minRatingRequired ? Number(minRatingRequired) : 0
+            minRatingRequired: minRatingRequired ? Number(minRatingRequired) : 0,
+            verifiedSellersOnly: verifiedSellersOnly || false
         });
 
         await auction.save();
@@ -141,6 +161,11 @@ const getOpenAuctions = async (req, res) => {
         const seller = await User.findById(req.user.id);
         const sellerRating = seller?.rating?.average || 0;
         filter.minRatingRequired = { $lte: sellerRating };
+
+        // Filter out verified-only auctions if seller is not verified
+        if (!seller?.bigMarketProfile?.verified) {
+            filter.verifiedSellersOnly = { $ne: true };
+        }
 
         if (category) filter.category = category;
         if (preferredMarket && preferredMarket !== 'any') filter.preferredMarket = preferredMarket;
@@ -221,7 +246,7 @@ const getAuctionById = async (req, res) => {
 
         // Get all bids for this auction
         let bids = await Bid.find({ auctionId: auction._id, status: { $in: ['active', 'won'] } })
-            .populate('sellerId', 'name bigMarketProfile rating')
+            .populate('sellerId', 'name bigMarketProfile rating subscription')
             .sort({ totalBidValue: 1, deliveryTimeline: 1 })
             .lean();
 
@@ -302,7 +327,7 @@ const getMyAuctions = async (req, res) => {
     try {
         const { page = 1, limit = 20, status } = req.query;
 
-        const filter = { buyerId: req.user.id };
+        const filter = { buyerId: req.user.accountId || req.user.id };
         if (status) filter.status = status;
 
         const auctions = await Auction.find(filter)

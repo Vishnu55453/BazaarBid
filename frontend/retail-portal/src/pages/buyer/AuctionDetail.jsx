@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Clock, MapPin, Package, Leaf, Target, Truck, AlertCircle, Wallet, Trophy, User } from 'lucide-react'
 import api from '../../services/api'
-import StatusBadge from '../../components/common/StatusBadge'
 import { toast } from 'react-hot-toast'
 import ReviewsModal from '../../components/ReviewsModal'
 
@@ -123,80 +123,153 @@ export default function AuctionDetail() {
 
       <div className="space-y-4">
         {/* Auction Info */}
-        <div className="bg-white border border-slate-200 rounded-[24px] p-6 shadow-md shadow-slate-100/50">
-          <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6">
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
             <div className="flex items-center gap-3">
-              <StatusBadge status={auction.status} />
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${auction.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${auction.status === 'open' ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
+                {auction.status.charAt(0).toUpperCase() + auction.status.slice(1)}
+              </div>
+              
               {auction.status === 'open' && (
-                <span className={`text-xs font-bold ${hrs < 2 ? 'text-rose-600 bg-rose-50' : 'text-amber-600 bg-amber-50'} px-2.5 py-1 rounded-full`}>
-                  ⏱ {hrs}h {mins}m remaining
-                </span>
+                <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full text-xs font-bold">
+                  <Clock className="w-3.5 h-3.5" />
+                  {hrs}h {mins}m remaining
+                </div>
               )}
             </div>
+
             {auction.status === 'open' && (
               <button onClick={handleCancel} disabled={cancelling}
-                className="rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold text-xs px-5 py-2.5 transition disabled:opacity-40 shadow-sm">
-                {cancelling ? 'Cancelling...' : 'Cancel Auction'}
+                className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs px-4 py-2 transition disabled:opacity-40">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                {cancelling ? 'CANCELLING...' : 'Cancel Auction'}
               </button>
             )}
           </div>
           
-          {auction.items && auction.items.length > 0 ? (
-            <div className="space-y-6">
+          {auction.items && auction.items.length > 0 && (
+            <div className="space-y-8">
               {auction.items.map((item, index) => (
-                <div key={item._id || index} className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
-                  <h3 className="text-xs font-black text-indigo-700 uppercase tracking-widest mb-3 border-b border-indigo-100 pb-2">Item {index + 1}: {item.productName}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1">
-                    <InfoRow label="Category" value={item.category} />
-                    <InfoRow label="Quantity Required" value={`${item.quantity} ${item.unit}`} />
-                    <InfoRow label="Grade" value={item.qualitySpecs?.grade} />
-                    <InfoRow label="Organic" value={item.qualitySpecs?.organic ? 'Yes' : 'No'} />
-                    <InfoRow label="Freshness" value={item.qualitySpecs?.freshness} />
-                    <InfoRow label="Packaging" value={item.qualitySpecs?.packaging} />
-                    {item.budgetRange?.min && <InfoRow label="Budget Range" value={`₹${item.budgetRange.min} – ₹${item.budgetRange.max} / unit`} />}
-                    <InfoRow label="Item Status" value={item.status.toUpperCase()} />
+                <div key={item._id || index} className="space-y-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <p className="text-[11px] font-bold text-indigo-700 uppercase tracking-widest mb-1">Item {index + 1}</p>
+                      <h2 className="text-2xl font-black text-slate-900 mb-3">{item.productName}</h2>
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+                          {item.category}
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          <Package className="w-3.5 h-3.5 text-blue-600" />
+                          {item.qualitySpecs?.packaging || 'No Packaging Info'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-emerald-50 rounded-2xl p-4 flex items-center gap-4 min-w-[200px] justify-between border border-emerald-100/50">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Item Status</p>
+                        <p className="text-lg font-black text-emerald-600 uppercase tracking-wide">{item.status}</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                      <div className="p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-5 h-5 text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Quantity Required</p>
+                          <p className="text-base font-black text-slate-900">{item.quantity} {item.unit}</p>
+                        </div>
+                      </div>
+                      <div className="p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                          <span className="text-emerald-600 font-bold text-lg">₹</span>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Budget Range</p>
+                          <p className="text-base font-black text-slate-900">
+                            {item.budgetRange?.min && item.budgetRange?.max 
+                              ? `₹${item.budgetRange.min} – ₹${item.budgetRange.max} / unit` 
+                              : 'Not specified'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {item.qualitySpecs?.packaging && (
+                      <div className="border-t border-slate-100 p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Packaging</p>
+                          <p className="text-base font-black text-slate-900">{item.qualitySpecs.packaging}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {item.qualitySpecs?.customRequirements && (
-                    <div className="mt-3 pt-3 border-t border-slate-200">
+                    <div className="mt-3">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Custom Requirements</p>
-                      <p className="text-sm font-medium text-slate-700 leading-relaxed">{item.qualitySpecs.customRequirements}</p>
+                      <p className="text-sm font-medium text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">{item.qualitySpecs.customRequirements}</p>
                     </div>
                   )}
                 </div>
               ))}
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1 pt-4 border-t border-slate-100">
-                <InfoRow label="Bidding Mode" value={auction.allowPartialBids ? 'Partial Bids Allowed' : 'All Items Mandatory'} />
-                <InfoRow label="Preferred Market" value={auction.preferredMarket?.replace(/_/g, ' ')} />
-                <InfoRow label="Delivery Timeline" value={`${auction.deliveryTimeline} day(s)`} />
-                {auction.minRatingRequired > 0 && <InfoRow label="Min Seller Rating" value={`${auction.minRatingRequired}+ Stars`} />}
-                <div className="md:col-span-2 lg:col-span-3">
-                  <InfoRow label="Delivery To" value={`${auction.deliveryAddress?.area}, ${auction.deliveryAddress?.city} - ${auction.deliveryAddress?.pincode}`} />
+              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Bidding Mode</p>
+                      <p className="text-sm font-black text-slate-900">{auction.allowPartialBids ? 'Partial Bids Allowed' : 'All Items Mandatory'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Preferred Market</p>
+                      <p className="text-sm font-black text-slate-900">{auction.preferredMarket?.replace(/_/g, ' ')}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Delivery Timeline</p>
+                      <p className="text-sm font-black text-slate-900">{auction.deliveryTimeline} day(s)</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50/80 rounded-2xl p-4 flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-500 mb-0.5">Delivery To</p>
+                    <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1">
-              <InfoRow label="Category" value={auction.category} />
-              <InfoRow label="Quantity Required" value={`${auction.quantity} ${auction.unit}`} />
-              <InfoRow label="Grade" value={auction.qualitySpecs?.grade} />
-              <InfoRow label="Organic" value={auction.qualitySpecs?.organic ? 'Yes' : 'No'} />
-              <InfoRow label="Freshness" value={auction.qualitySpecs?.freshness} />
-              <InfoRow label="Packaging" value={auction.qualitySpecs?.packaging} />
-              <InfoRow label="Preferred Market" value={auction.preferredMarket?.replace(/_/g, ' ')} />
-              <InfoRow label="Delivery Timeline" value={`${auction.deliveryTimeline} day(s)`} />
-              {auction.minRatingRequired > 0 && <InfoRow label="Min Seller Rating" value={`${auction.minRatingRequired}+ Stars`} />}
-              {auction.budgetRange?.min && <InfoRow label="Budget Range" value={`₹${auction.budgetRange.min} – ₹${auction.budgetRange.max} / unit`} />}
-              <div className="md:col-span-2 lg:col-span-3">
-                <InfoRow label="Delivery To" value={`${auction.deliveryAddress?.area}, ${auction.deliveryAddress?.city} - ${auction.deliveryAddress?.pincode}`} />
-              </div>
-            </div>
-          )}
-
-          {!auction.items && auction.qualitySpecs?.customRequirements && (
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Custom Requirements</p>
-              <p className="text-sm font-medium text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">{auction.qualitySpecs.customRequirements}</p>
             </div>
           )}
         </div>
@@ -318,7 +391,14 @@ export default function AuctionDetail() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 text-sm">{bid.sellerId?.bigMarketProfile?.shopName || bid.sellerId?.name || 'Supplier'}</span>
+                        <div className="font-bold text-slate-800 text-sm flex flex-col items-start gap-1">
+                          <span>{bid.sellerId?.bigMarketProfile?.shopName || bid.sellerId?.name || 'Supplier'}</span>
+                          {bid.sellerId?.subscription?.planCode === 'premium_seller' && (
+                            <span className="inline-flex items-center gap-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-amber-200">
+                              ★ Premium
+                            </span>
+                          )}
+                        </div>
                         <button 
                           onClick={() => {
                             setSelectedSeller({
@@ -367,7 +447,11 @@ export default function AuctionDetail() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1.5 min-w-[120px]">
-                        {bid.freeDelivery && <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md">Free Delivery</span>}
+                        {bid.freeDelivery ? (
+                          <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md">Free Delivery</span>
+                        ) : (
+                          <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">+ ₹{bid.deliveryCharges} Delivery</span>
+                        )}
                         {bid.qualityGuarantee && <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md">Quality Guarantee</span>}
                         {bid.discountOffered > 0 && <span className="text-[9px] font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-md">{bid.discountOffered}% Off</span>}
                         {bid.additionalNotes && <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md italic truncate max-w-[150px]" title={bid.additionalNotes}>"{bid.additionalNotes}"</span>}

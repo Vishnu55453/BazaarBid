@@ -1,12 +1,25 @@
 const User = require('../models/User');
+const SubscriptionPlan = require('../models/SubscriptionPlan');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+
+// Helper to determine active plan features
+const getUserPlanFeatures = async (user) => {
+    let planCode = user?.subscription?.planCode;
+    if (!planCode) {
+        planCode = user?.role === 'kirana_user' ? 'free_buyer' : 'free_seller';
+    }
+    const plan = await SubscriptionPlan.findOne({ planCode });
+    return plan?.features || {};
+};
 
 // Generate JWT Token
 const generateToken = (user) => {
     return jwt.sign(
         {
             id: user._id,
+            accountId: user.isStaff ? user.parentAccountId : user._id,
+            isStaff: user.isStaff,
             email: user.email,
             role: user.role,
             isKirana: user.isKirana,
@@ -101,13 +114,16 @@ const register = async (req, res) => {
         const user = new User(userData);
         await user.save();
 
-        // Generate token
-        const token = generateToken(user);
+        // Generate token only if verified or admin
+        let token = null;
+        if (user.isVerified || user.role === 'admin') {
+            token = generateToken(user);
+        }
 
         // Prepare response based on role
         const responseData = {
             success: true,
-            message: 'Registration successful',
+            message: (user.isVerified || user.role === 'admin') ? 'Registration successful' : 'Registration successful! Your account is pending admin verification.',
             token,
             user: {
                 id: user._id,
@@ -116,7 +132,9 @@ const register = async (req, res) => {
                 phone: user.phone,
                 role: user.role,
                 isVerified: user.isVerified,
-                kycStatus: user.kycStatus
+                kycStatus: user.kycStatus,
+                subscription: user.subscription,
+                usageMetrics: user.usageMetrics
             }
         };
 
@@ -163,6 +181,11 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        // Check if account is verified (skip if admin)
+        if (!user.isVerified && user.role !== 'admin') {
+            return res.status(403).json({ message: 'Your account is pending verification by the admin.' });
+        }
+
         // Check if account is active
         if (!user.isActive) {
             return res.status(401).json({ message: 'Account is deactivated. Contact admin.' });
@@ -174,6 +197,9 @@ const login = async (req, res) => {
 
         // Generate token
         const token = generateToken(user);
+
+        // Get features
+        const features = await getUserPlanFeatures(user);
 
         // Prepare response
         const responseData = {
@@ -189,7 +215,10 @@ const login = async (req, res) => {
                 isVerified: user.isVerified,
                 kycStatus: user.kycStatus,
                 rating: user.rating,
-                location: user.location
+                location: user.location,
+                subscription: user.subscription,
+                usageMetrics: user.usageMetrics,
+                features
             }
         };
 
@@ -198,7 +227,7 @@ const login = async (req, res) => {
             responseData.user.kiranaProfile = {
                 asBuyer: {
                     preferredMarkets: user.kiranaProfile.asBuyer?.preferredMarkets,
-                    deliveryAddress: user.kiranaProfile.asBuyer?.deliveryAddress
+                    deliveryAddresses: user.kiranaProfile.asBuyer?.deliveryAddresses
                 },
                 asSeller: {
                     shopName: user.kiranaProfile.asSeller?.shopName,
@@ -239,6 +268,8 @@ const getMe = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const features = await getUserPlanFeatures(user);
+
         const responseData = {
             success: true,
             user: {
@@ -255,7 +286,10 @@ const getMe = async (req, res) => {
                 totalOrders: user.totalOrders,
                 totalSales: user.totalSales,
                 walletBalance: user.walletBalance,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                subscription: user.subscription,
+                usageMetrics: user.usageMetrics,
+                features
             }
         };
 

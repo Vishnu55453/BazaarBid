@@ -115,6 +115,10 @@ const auctionSchema = new mongoose.Schema({
         min: 0, 
         max: 5 
     },
+    verifiedSellersOnly: {
+        type: Boolean,
+        default: false
+    },
 
     // Bids Summary
     totalBids: { type: Number, default: 0 },

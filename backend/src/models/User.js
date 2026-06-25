@@ -44,6 +44,10 @@ const userSchema = new mongoose.Schema({
         required: true
     },
 
+    // Staff/Multi-User
+    isStaff: { type: Boolean, default: false },
+    parentAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
     // Account Status
     isVerified: {
         type: Boolean,
@@ -69,7 +73,7 @@ const userSchema = new mongoose.Schema({
                 type: [String],
                 default: []
             },
-            deliveryAddress: {
+            deliveryAddresses: [{
                 shopName: String,
                 area: String,
                 city: String,
@@ -78,8 +82,9 @@ const userSchema = new mongoose.Schema({
                     match: [/^[1-9][0-9]{5}$/, 'Please enter a valid pincode']
                 },
                 fullAddress: String,
-                landmark: String
-            },
+                landmark: String,
+                isDefault: { type: Boolean, default: false }
+            }],
             avgMonthlyPurchase: { type: Number, default: 0 } // In rupees
         },
 

@@ -25,6 +25,207 @@ function InfoRow({ label, value, badge }) {
   )
 }
 
+function AddressesTab({ profile, setProfile }) {
+  const [addresses, setAddresses] = useState(profile?.kiranaProfile?.asBuyer?.deliveryAddresses || [])
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({ shopName: '', area: '', city: '', pincode: '', isDefault: false })
+
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await api.post('/api/premium/addresses', form)
+      if (res.success) {
+        setAddresses(res.addresses)
+        setProfile(p => ({
+          ...p,
+          kiranaProfile: {
+            ...p.kiranaProfile,
+            asBuyer: { ...p.kiranaProfile.asBuyer, deliveryAddresses: res.addresses }
+          }
+        }))
+        setAdding(false)
+        setForm({ shopName: '', area: '', city: '', pincode: '', isDefault: false })
+        toast.success('Address added successfully')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to add address')
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this address?')) return
+    try {
+      const res = await api.delete(`/api/premium/addresses/${id}`)
+      if (res.success) {
+        setAddresses(res.addresses)
+        setProfile(p => ({
+          ...p,
+          kiranaProfile: {
+            ...p.kiranaProfile,
+            asBuyer: { ...p.kiranaProfile.asBuyer, deliveryAddresses: res.addresses }
+          }
+        }))
+        toast.success('Address deleted')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to delete')
+    }
+  }
+
+  const handleSetDefault = async (id) => {
+    try {
+      const res = await api.put(`/api/premium/addresses/${id}/default`)
+      if (res.success) {
+        setAddresses(res.addresses)
+        setProfile(p => ({
+          ...p,
+          kiranaProfile: {
+            ...p.kiranaProfile,
+            asBuyer: { ...p.kiranaProfile.asBuyer, deliveryAddresses: res.addresses }
+          }
+        }))
+        toast.success('Default address updated')
+      }
+    } catch (err) {
+      toast.error('Failed to set default')
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold">Delivery Branches</h2>
+        <button onClick={() => setAdding(!adding)} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold">
+          {adding ? 'Cancel' : '+ Add Address'}
+        </button>
+      </div>
+
+      {adding && (
+        <form onSubmit={handleAdd} className="bg-white p-4 border rounded-2xl space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <input placeholder="Branch / Shop Name" required className="border p-2 rounded-xl text-sm w-full" value={form.shopName} onChange={e => setForm(p => ({...p, shopName: e.target.value}))} />
+            <input placeholder="Area / Locality" required className="border p-2 rounded-xl text-sm w-full" value={form.area} onChange={e => setForm(p => ({...p, area: e.target.value}))} />
+            <input placeholder="City" required className="border p-2 rounded-xl text-sm w-full" value={form.city} onChange={e => setForm(p => ({...p, city: e.target.value}))} />
+            <input placeholder="Pincode" maxLength={6} required className="border p-2 rounded-xl text-sm w-full" value={form.pincode} onChange={e => setForm(p => ({...p, pincode: e.target.value}))} />
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" checked={form.isDefault} onChange={e => setForm(p => ({...p, isDefault: e.target.checked}))} />
+            <label className="text-xs font-bold text-slate-600">Set as default</label>
+          </div>
+          <button type="submit" className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold w-full">Save Address</button>
+        </form>
+      )}
+
+      <div className="grid gap-4">
+        {addresses.map(addr => (
+          <div key={addr._id || addr.area} className={`p-4 border rounded-2xl flex justify-between items-center ${addr.isDefault ? 'border-indigo-400 bg-indigo-50' : 'bg-white'}`}>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-bold">{addr.shopName}</p>
+                {addr.isDefault && <span className="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full">Default</span>}
+              </div>
+              <p className="text-sm text-slate-500">{addr.area}, {addr.city} - {addr.pincode}</p>
+            </div>
+            <div className="flex gap-2">
+              {!addr.isDefault && (
+                <button onClick={() => handleSetDefault(addr._id)} className="text-xs font-bold text-indigo-600 bg-indigo-100 px-3 py-1.5 rounded-lg">Set Default</button>
+              )}
+              <button onClick={() => handleDelete(addr._id)} className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1.5 rounded-lg">Delete</button>
+            </div>
+          </div>
+        ))}
+        {addresses.length === 0 && <p className="text-sm text-slate-500">No addresses saved.</p>}
+      </div>
+    </div>
+  )
+}
+
+function StaffTab({ profile }) {
+  const [staff, setStaff] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' })
+
+  const fetchStaff = async () => {
+    try {
+      const res = await api.get('/api/premium/staff')
+      if (res.success) setStaff(res.staff)
+    } catch (err) {
+      toast.error('Failed to load staff')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { fetchStaff() }, [])
+
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await api.post('/api/premium/staff', form)
+      if (res.success) {
+        toast.success('Staff added')
+        setAdding(false)
+        setForm({ name: '', email: '', phone: '', password: '' })
+        fetchStaff()
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to add staff')
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to remove this staff member?')) return
+    try {
+      const res = await api.delete(`/api/premium/staff/${id}`)
+      if (res.success) {
+        toast.success('Staff removed')
+        fetchStaff()
+      }
+    } catch (err) {
+      toast.error('Failed to remove staff')
+    }
+  }
+
+  if (loading) return <div>Loading...</div>
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold">Staff Management</h2>
+        <button onClick={() => setAdding(!adding)} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold">
+          {adding ? 'Cancel' : '+ Add Staff'}
+        </button>
+      </div>
+
+      {adding && (
+        <form onSubmit={handleAdd} className="bg-white p-4 border rounded-2xl space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <input placeholder="Staff Name" required className="border p-2 rounded-xl text-sm w-full" value={form.name} onChange={e => setForm(p => ({...p, name: e.target.value}))} />
+            <input placeholder="Staff Email" required type="email" className="border p-2 rounded-xl text-sm w-full" value={form.email} onChange={e => setForm(p => ({...p, email: e.target.value}))} />
+            <input placeholder="Phone" required maxLength={10} className="border p-2 rounded-xl text-sm w-full" value={form.phone} onChange={e => setForm(p => ({...p, phone: e.target.value}))} />
+            <input placeholder="Password" required minLength={6} type="password" className="border p-2 rounded-xl text-sm w-full" value={form.password} onChange={e => setForm(p => ({...p, password: e.target.value}))} />
+          </div>
+          <button type="submit" className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold w-full">Create Staff Account</button>
+        </form>
+      )}
+
+      <div className="grid gap-4">
+        {staff.map(s => (
+          <div key={s._id} className="p-4 border rounded-2xl flex justify-between items-center bg-white">
+            <div>
+              <p className="font-bold">{s.name}</p>
+              <p className="text-sm text-slate-500">{s.email} • {s.phone}</p>
+            </div>
+            <button onClick={() => handleDelete(s._id)} className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1.5 rounded-lg">Remove</button>
+          </div>
+        ))}
+        {staff.length === 0 && <p className="text-sm text-slate-500">No staff accounts found.</p>}
+      </div>
+    </div>
+  )
+}
+
 export default function Profile() {
   const { user, setUser } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -41,6 +242,7 @@ export default function Profile() {
     gstNumber: ''
   })
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('profile')
 
   const fetchProfile = async () => {
     try {
@@ -164,6 +366,70 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-slate-200 gap-6">
+        <button className={`pb-2 text-sm font-bold border-b-2 transition ${activeTab === 'profile' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setActiveTab('profile')}>Shop Profile</button>
+        <button className={`pb-2 text-sm font-bold border-b-2 transition ${activeTab === 'addresses' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setActiveTab('addresses')}>Delivery Branches</button>
+        {profile?.subscription?.planCode === 'premium_buyer' && !profile?.isStaff && (
+          <button className={`pb-2 text-sm font-bold border-b-2 transition ${activeTab === 'staff' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setActiveTab('staff')}>Staff Management</button>
+        )}
+      </div>
+
+      {/* Render active tab */}
+      {activeTab === 'profile' && (
+        <div className="space-y-6">
+          {/* Subscription & Billing (Read-Only) */}
+      {!editing && profile?.subscription && (
+        <div className={`rounded-[28px] shadow-sm border p-6 ${
+          profile.subscription.planCode === 'premium_buyer' 
+            ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+            : 'bg-white border-slate-200'
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <svg className={`w-5 h-5 mr-3 ${
+                profile.subscription.planCode === 'premium_buyer' ? 'text-amber-500' : 'text-slate-400'
+              }`} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              <h3 className="font-bold text-slate-900">Subscription Plan</h3>
+            </div>
+            {profile.subscription.planCode === 'free_buyer' && (
+              <button className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs rounded-full shadow-md hover:from-amber-600 hover:to-orange-600 transition">
+                Upgrade to Premium
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Current Plan</p>
+              <p className={`font-bold ${
+                profile.subscription.planCode === 'premium_buyer' ? 'text-amber-600' : 'text-slate-800'
+              }`}>
+                {profile.subscription.planCode === 'premium_buyer' ? 'Premium Retailer' : 'Free Retailer'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Auctions Published</p>
+              <p className="font-bold text-slate-800">
+                {profile.usageMetrics?.auctionsThisMonth || 0}
+                {profile.subscription.planCode === 'free_buyer' && ' / 2'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Billing Cycle</p>
+              <p className="font-bold text-slate-800">
+                {new Date(profile.subscription.billingCycleStart).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Status</p>
+              <p className="font-bold text-emerald-600">Active</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit toggle */}
       <div className="flex justify-end">
@@ -306,6 +572,16 @@ export default function Profile() {
             </div>
           </ProfileSection>
         </div>
+      )}
+      </div>
+      )}
+
+      {activeTab === 'addresses' && (
+        <AddressesTab profile={profile} setProfile={setProfile} />
+      )}
+
+      {activeTab === 'staff' && profile?.subscription?.planCode === 'premium_buyer' && !profile?.isStaff && (
+        <StaffTab profile={profile} />
       )}
 
       <ReviewsModal 

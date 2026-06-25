@@ -31,7 +31,7 @@ const placeBid = async (req, res) => {
         }
 
         const { auctionId } = req.params;
-        const { bidItems, deliveryTimeline, notes, freeDelivery, qualityGuarantee, discountOffered } = req.body;
+        const { bidItems, deliveryTimeline, notes, freeDelivery, qualityGuarantee, discountOffered, deliveryCharges } = req.body;
 
         // Check if auction exists
         const auction = await Auction.findById(auctionId);
@@ -52,6 +52,20 @@ const placeBid = async (req, res) => {
                 message: `This auction requires a minimum rating of ${auction.minRatingRequired} stars. Your current rating is ${sellerRating}.` 
             });
         }
+
+        // Check verified requirement
+        if (auction.verifiedSellersOnly && !seller?.bigMarketProfile?.verified) {
+            return res.status(403).json({
+                message: 'This auction only accepts bids from verified sellers. Please complete your KYC verification.'
+            });
+        }
+
+        // Validate delivery charges
+        if (!freeDelivery && (deliveryCharges === undefined || deliveryCharges === null || Number(deliveryCharges) < 0)) {
+            return res.status(400).json({ message: 'Delivery charges are required and must be a valid amount when free delivery is not offered.' });
+        }
+        
+        const finalDeliveryCharges = freeDelivery ? 0 : Number(deliveryCharges);
 
         // Validate bid items
         if (!bidItems || !Array.isArray(bidItems) || bidItems.length === 0) {
@@ -99,7 +113,10 @@ const placeBid = async (req, res) => {
             existingBid.totalBidValue = totalBidValue;
             existingBid.deliveryTimeline = deliveryTimeline;
             existingBid.additionalNotes = notes;
-            if (freeDelivery !== undefined) existingBid.freeDelivery = freeDelivery;
+            if (freeDelivery !== undefined) {
+                existingBid.freeDelivery = freeDelivery;
+                existingBid.deliveryCharges = finalDeliveryCharges;
+            }
             if (qualityGuarantee !== undefined) existingBid.qualityGuarantee = qualityGuarantee;
             existingBid.discountOffered = finalDiscount;
             await existingBid.save();
@@ -141,6 +158,7 @@ const placeBid = async (req, res) => {
             deliveryTimeline,
             additionalNotes: notes,
             freeDelivery: freeDelivery || false,
+            deliveryCharges: finalDeliveryCharges,
             qualityGuarantee: qualityGuarantee || false,
             discountOffered: finalDiscount,
             status: 'active'

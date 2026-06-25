@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import { toast } from 'react-hot-toast'
+import { Lock } from 'lucide-react'
 
 // Dynamic categories and markets
 const UNITS = ['kg', 'gram', 'litre', 'dozen', 'piece', 'box']
@@ -56,18 +57,13 @@ export default function CreateAuction() {
     }],
     allowPartialBids: false,
     preferredMarket: 'any',
-    deliveryAddress: {
-      shopName: shopName,
-      area: area,
-      city: city,
-      pincode: pincode,
-      landmark: '',
-      fullAddress: ''
-    },
+    addressId: user?.kiranaProfile?.asBuyer?.deliveryAddresses?.find(a => a.isDefault)?._id || 
+               user?.kiranaProfile?.asBuyer?.deliveryAddresses?.[0]?._id || '',
     deliveryTimeline: 2,
     endTime: '',
     autoAward: true,
-    minRatingRequired: 0
+    minRatingRequired: 0,
+    verifiedSellersOnly: false
   })
 
   const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
@@ -124,8 +120,7 @@ export default function CreateAuction() {
 
   const isFormValid = () => {
     const itemsValid = form.items.every(item => item.productName && item.category && item.quantity && item.unit)
-    return itemsValid && form.preferredMarket && form.deliveryAddress.area && form.deliveryAddress.city &&
-      form.deliveryAddress.pincode && form.deliveryTimeline && form.endTime
+    return itemsValid && form.preferredMarket && form.addressId && form.deliveryTimeline && form.endTime
   }
 
   const handleSubmit = async () => {
@@ -290,25 +285,17 @@ export default function CreateAuction() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className={labelClass}>Shop Name</label>
-                  <input className={inputClass} value={form.deliveryAddress.shopName}
-                    onChange={e => setNested('deliveryAddress', 'shopName', e.target.value)} />
-                </div>
-                <div>
-                  <label className={labelClass}>Area / Locality <span className="text-red-500">*</span></label>
-                  <input className={inputClass} placeholder="E.g. Sector 7, Kharghar" value={form.deliveryAddress.area}
-                    onChange={e => setNested('deliveryAddress', 'area', e.target.value)} />
-                </div>
-                <div>
-                  <label className={labelClass}>City <span className="text-red-500">*</span></label>
-                  <input className={inputClass} value={form.deliveryAddress.city}
-                    onChange={e => setNested('deliveryAddress', 'city', e.target.value)} />
-                </div>
-                <div>
-                  <label className={labelClass}>Pincode <span className="text-red-500">*</span></label>
-                  <input className={inputClass} maxLength={6} value={form.deliveryAddress.pincode}
-                    onChange={e => setNested('deliveryAddress', 'pincode', e.target.value)} />
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>Select Delivery Branch <span className="text-red-500">*</span></label>
+                  <select className={inputClass} value={form.addressId} onChange={e => set('addressId', e.target.value)}>
+                    <option value="">-- Select Saved Address --</option>
+                    {(user?.kiranaProfile?.asBuyer?.deliveryAddresses || []).map(addr => (
+                      <option key={addr._id} value={addr._id}>
+                        {addr.shopName} - {addr.area}, {addr.city} ({addr.pincode})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-slate-400 mt-1">Manage delivery branches from your Shop Profile.</p>
                 </div>
                 <div className="sm:col-span-2">
                   <label className={labelClass}>Delivery Within (Days) <span className="text-red-500">*</span></label>
@@ -385,7 +372,34 @@ export default function CreateAuction() {
                   </select>
                   <p className="text-[11px] text-slate-400 mt-1">Only sellers with this rating or higher will be able to see and bid on your auction.</p>
                 </div>
+
                 <div className="sm:col-span-2">
+                  <div className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all mb-4
+                    ${user?.features?.canFilterVerifiedSellers ? (form.verifiedSellersOnly ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200') : 'bg-slate-50 border-slate-200 opacity-70'}`}
+                    onClick={() => {
+                      if (user?.features?.canFilterVerifiedSellers) {
+                        set('verifiedSellersOnly', !form.verifiedSellersOnly)
+                      }
+                    }}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-slate-800">Verified Sellers Only</p>
+                        {!user?.features?.canFilterVerifiedSellers && (
+                          <span className="flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            <Lock className="w-3 h-3" /> Premium
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">Only accept bids from KYC verified sellers</p>
+                    </div>
+                    <div className={`w-11 h-6 rounded-full transition-all duration-300 relative flex-shrink-0
+                      ${form.verifiedSellersOnly ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-300
+                        ${form.verifiedSellersOnly ? 'left-5' : 'left-0.5'}`} />
+                    </div>
+                  </div>
+
                   <div className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all
                     ${form.autoAward ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200'}`}
                     onClick={() => set('autoAward', !form.autoAward)}

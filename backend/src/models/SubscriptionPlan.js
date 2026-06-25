@@ -36,6 +36,26 @@ const subscriptionPlanSchema = new mongoose.Schema({
             type: Boolean,
             required: true,
             default: false
+        },
+        canFilterVerifiedSellers: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        canViewAnalytics: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        hasPremiumBadge: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        canViewDemandHeatmaps: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     }
 }, {

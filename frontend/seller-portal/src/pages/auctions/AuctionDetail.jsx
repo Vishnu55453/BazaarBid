@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, Package, AlertCircle, Wallet, Trophy, User } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Package, AlertCircle, Wallet, Trophy, User, Leaf, Target, Truck, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
@@ -34,6 +34,7 @@ const AuctionDetail = () => {
     deliveryTimeline: '',
     notes: '',
     freeDelivery: false,
+    deliveryCharges: '',
     qualityGuarantee: false
   });
   const [planFeatures, setPlanFeatures] = useState({
@@ -66,6 +67,7 @@ const AuctionDetail = () => {
               deliveryTimeline: res.userBid.deliveryTimeline,
               notes: res.userBid.additionalNotes || '',
               freeDelivery: res.userBid.freeDelivery || false,
+              deliveryCharges: res.userBid.deliveryCharges || '',
               qualityGuarantee: res.userBid.qualityGuarantee || false,
               discountOffered: res.userBid.discountOffered || 0
             });
@@ -74,6 +76,8 @@ const AuctionDetail = () => {
               prices: {},
               deliveryTimeline: res.auction.deliveryTimeline || '',
               notes: '',
+              freeDelivery: false,
+              deliveryCharges: '',
               discountOffered: 0
             });
           }
@@ -124,6 +128,7 @@ const AuctionDetail = () => {
         deliveryTimeline: Number(bidForm.deliveryTimeline),
         notes: bidForm.notes,
         freeDelivery: bidForm.freeDelivery,
+        deliveryCharges: bidForm.freeDelivery ? 0 : Number(bidForm.deliveryCharges),
         qualityGuarantee: bidForm.qualityGuarantee,
         discountOffered: Number(bidForm.discountOffered) || 0
       });
@@ -181,16 +186,22 @@ const AuctionDetail = () => {
 
       <div className="space-y-4">
         {/* Section 1: Auction Info */}
-        <div className="bg-white border border-slate-200 rounded-[24px] p-6 shadow-md shadow-slate-100/50">
-          <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6">
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
             <div className="flex items-center gap-3">
-              <StatusBadge status={auction.status} />
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${auction.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${auction.status === 'open' ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
+                {auction.status.charAt(0).toUpperCase() + auction.status.slice(1)}
+              </div>
+              
               {auction.status === 'open' && (
-                <span className={`text-xs font-bold ${hrs < 2 ? 'text-rose-600 bg-rose-50' : 'text-amber-600 bg-amber-50'} px-2.5 py-1 rounded-full`}>
-                  ⏱ {hrs}h {mins}m remaining
-                </span>
+                <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full text-xs font-bold">
+                  <Clock className="w-3.5 h-3.5" />
+                  {hrs}h {mins}m remaining
+                </div>
               )}
             </div>
+
             {auction.buyerId && (
               <div className="text-right">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Requested By</p>
@@ -215,223 +226,395 @@ const AuctionDetail = () => {
               </div>
             )}
           </div>
-
-          {auction.items && auction.items.length > 0 ? (
-            <div className="space-y-6">
+          
+          {auction.items && auction.items.length > 0 && (
+            <div className="space-y-8">
               {auction.items.map((item, index) => (
-                <div key={item._id || index} className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
-                  <h3 className="text-xs font-black text-indigo-700 uppercase tracking-widest mb-3 border-b border-indigo-100 pb-2">Item {index + 1}: {item.productName}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1">
-                    <InfoRow label="Category" value={item.category} />
-                    <InfoRow label="Quantity Required" value={`${item.quantity} ${item.unit}`} />
-                    <InfoRow label="Grade" value={item.qualitySpecs?.grade} />
-                    <InfoRow label="Organic" value={item.qualitySpecs?.organic ? 'Yes' : 'No'} />
-                    <InfoRow label="Freshness" value={item.qualitySpecs?.freshness} />
-                    <InfoRow label="Packaging" value={item.qualitySpecs?.packaging} />
-                    {item.budgetRange?.max && <InfoRow label="Target Budget" value={`Max ₹${item.budgetRange.max} / unit`} />}
-                    <InfoRow label="Item Status" value={item.status.toUpperCase()} />
+                <div key={item._id || index} className="space-y-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <p className="text-[11px] font-bold text-indigo-700 uppercase tracking-widest mb-1">Item {index + 1}</p>
+                      <h2 className="text-2xl font-black text-slate-900 mb-3">{item.productName}</h2>
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+                          {item.category}
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          <Package className="w-3.5 h-3.5 text-blue-600" />
+                          {item.qualitySpecs?.packaging || 'No Packaging Info'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-emerald-50 rounded-2xl p-4 flex items-center gap-4 min-w-[200px] justify-between border border-emerald-100/50">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Item Status</p>
+                        <p className="text-lg font-black text-emerald-600 uppercase tracking-wide">{item.status}</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                      <div className="p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-5 h-5 text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Quantity Required</p>
+                          <p className="text-base font-black text-slate-900">{item.quantity} {item.unit}</p>
+                        </div>
+                      </div>
+                      <div className="p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                          <span className="text-emerald-600 font-bold text-lg">₹</span>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Budget Range</p>
+                          <p className="text-base font-black text-slate-900">
+                            {item.budgetRange?.min && item.budgetRange?.max 
+                              ? `₹${item.budgetRange.min} – ₹${item.budgetRange.max} / unit` 
+                              : 'Not specified'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {item.qualitySpecs?.packaging && (
+                      <div className="border-t border-slate-100 p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-400 mb-0.5">Packaging</p>
+                          <p className="text-base font-black text-slate-900">{item.qualitySpecs.packaging}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {item.qualitySpecs?.customRequirements && (
-                    <div className="mt-3 pt-3 border-t border-slate-200">
+                    <div className="mt-3">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Custom Requirements</p>
-                      <p className="text-sm font-medium text-slate-700 leading-relaxed">{item.qualitySpecs.customRequirements}</p>
+                      <p className="text-sm font-medium text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">{item.qualitySpecs.customRequirements}</p>
                     </div>
                   )}
                 </div>
               ))}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1 pt-4 border-t border-slate-100">
-                <InfoRow label="Bidding Mode" value={auction.allowPartialBids ? 'Partial Bids Allowed' : 'All Items Mandatory'} />
-                <InfoRow label="Preferred Market" value={auction.preferredMarket?.replace(/_/g, ' ')} />
-                <InfoRow label="Delivery Timeline" value={`Within ${auction.deliveryTimeline} day(s)`} />
-                {auction.minRatingRequired > 0 && <InfoRow label="Min Rating Req." value={`${auction.minRatingRequired}+ Stars`} />}
-                <div className="md:col-span-2 lg:col-span-3">
-                  <InfoRow label="Delivery To" value={`${auction.deliveryAddress?.area}, ${auction.deliveryAddress?.city} - ${auction.deliveryAddress?.pincode}`} />
+              
+              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Bidding Mode</p>
+                      <p className="text-sm font-black text-slate-900">{auction.allowPartialBids ? 'Partial Bids Allowed' : 'All Items Mandatory'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Preferred Market</p>
+                      <p className="text-sm font-black text-slate-900">{auction.preferredMarket?.replace(/_/g, ' ')}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Delivery Timeline</p>
+                      <p className="text-sm font-black text-slate-900">{auction.deliveryTimeline} day(s)</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-1">
-              <InfoRow label="Category" value={auction.category} />
-              <InfoRow label="Quantity Required" value={`${auction.quantity} ${auction.unit}`} />
-              <InfoRow label="Delivery Timeline" value={`Within ${auction.deliveryTimeline} day(s)`} />
-              {auction.minRatingRequired > 0 && <InfoRow label="Min Rating Req." value={`${auction.minRatingRequired}+ Stars`} />}
-              <div className="md:col-span-2 lg:col-span-3">
-                <InfoRow label="Delivery To" value={`${auction.deliveryAddress?.area}, ${auction.deliveryAddress?.city} - ${auction.deliveryAddress?.pincode}`} />
+                
+                <div className="bg-slate-50/80 rounded-2xl p-4 flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-500 mb-0.5">Delivery To</p>
+                    <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {/* Section 2: Bidding Form */}
-        <div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">{userBid ? 'Update Your Bid' : 'Place a Bid'}</h2>
+        <div className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <Edit className="w-6 h-6 text-indigo-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900">{userBid ? 'Update Your Bid' : 'Place a Bid'}</h2>
+              <p className="text-sm font-medium text-slate-500">Review and update your offer details below</p>
+            </div>
+          </div>
 
-            {userBid?.status === 'won' ? (
-              <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-lg flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
-                  <Trophy className="w-6 h-6 text-emerald-600" />
+          {userBid?.status === 'won' ? (
+            <div className="bg-emerald-50 border border-emerald-200 p-8 rounded-2xl flex flex-col items-center text-center max-w-md mx-auto">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                <Trophy className="w-8 h-8 text-emerald-600" />
+              </div>
+              <h3 className="text-emerald-800 font-black text-2xl mb-2">Congratulations!</h3>
+              <p className="text-emerald-700 font-medium mb-6">Your bid was awarded for this auction.</p>
+              {auction?.orderId && (
+                <Link
+                  to={`/orders/${auction.orderId}/invoice`}
+                  className="w-full inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition shadow-sm"
+                >
+                  View Bill / Invoice
+                </Link>
+              )}
+            </div>
+          ) : isClosed ? (
+            <div className="bg-amber-50 text-amber-800 p-6 rounded-2xl flex items-start max-w-md mx-auto">
+              <AlertCircle className="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-lg mb-1">Auction Closed</p>
+                <p className="text-sm">This auction has closed. No more bids can be placed or updated.</p>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleBidSubmit} className="flex flex-col lg:flex-row gap-8">
+              
+              {/* Form Fields Side */}
+              <div className="flex-1 space-y-6">
+                
+                {/* Dynamic Item Fields */}
+                {auction.items?.filter(item => item.status === 'open').map(item => (
+                  <div key={item._id} className="relative flex gap-4 pb-6 border-b border-slate-100">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0 mt-2">
+                      <span className="text-indigo-600 font-bold text-lg">₹</span>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-2">
+                        Price for {item.productName} ({item.unit}) <span className="text-rose-500">{!auction.allowPartialBids && '*'}</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          required={!auction.allowPartialBids}
+                          min="1"
+                          step="0.01"
+                          value={bidForm.prices[item._id] || ''}
+                          onChange={(e) => setBidForm({ ...bidForm, prices: { ...bidForm.prices, [item._id]: e.target.value }})}
+                          className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 font-bold text-slate-900 bg-white transition"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-bold text-sm border-l border-slate-100 pl-4 my-2">
+                          / {item.unit}
+                        </div>
+                      </div>
+                      <p className="text-xs font-medium text-slate-500 mt-2">
+                        Required Quantity: <span className="font-bold text-indigo-600">{item.quantity} {item.unit}</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Delivery Timeline */}
+                <div className="relative flex gap-4 pb-6 border-b border-slate-100">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-2">
+                    <Clock className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-2">
+                      Delivery (Days) <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        required min="1" max={auction.deliveryTimeline}
+                        value={bidForm.deliveryTimeline}
+                        onChange={(e) => setBidForm({ ...bidForm, deliveryTimeline: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50 font-bold text-slate-900 bg-white transition"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-bold text-sm border-l border-slate-100 pl-4 my-2">
+                        Days
+                      </div>
+                    </div>
+                    <p className="text-xs font-medium text-slate-500 mt-2">
+                      Requested: <span className="font-bold text-emerald-600">&le; {auction.deliveryTimeline} days</span>
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-emerald-800 font-bold text-lg mb-1">Congratulations!</h3>
-                <p className="text-emerald-700 text-sm mb-4">Your bid was awarded for this auction.</p>
-                {auction?.orderId && (
-                  <Link
-                    to={`/orders/${auction.orderId}/invoice`}
-                    className="w-full inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm"
-                  >
-                    View Bill / Invoice
-                  </Link>
-                )}
-              </div>
-            ) : isClosed ? (
-              <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg flex items-start">
-                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
-                <p className="text-sm">This auction has closed. No more bids can be placed.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleBidSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 items-start">
 
-                {/* Dynamic fields for each item */}
-                <div className="xl:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border-b border-gray-100 pb-4">
-                  {auction.items?.filter(item => item.status === 'open').map(item => (
-                    <div key={item._id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <label className="block text-xs font-bold text-gray-700 mb-2 truncate">
-                        Price for {item.productName} ({item.unit}) <span className="text-red-500">{!auction.allowPartialBids && '*'}</span>
+                {/* Notes & Perks */}
+                <div className="relative flex gap-4 pb-6 border-b border-slate-100">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 mt-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                  </div>
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">Notes (Optional)</label>
+                      <textarea
+                        value={bidForm.notes}
+                        onChange={(e) => setBidForm({ ...bidForm, notes: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-300 focus:ring-4 focus:ring-blue-50 text-sm placeholder-slate-400 resize-none transition"
+                        rows="2"
+                        maxLength="300"
+                        placeholder="Any specific terms or quality assurances..."
+                      ></textarea>
+                      <p className="text-right text-[10px] font-medium text-slate-400 mt-1">{bidForm.notes.length} / 300</p>
+                    </div>
+                    <div className="flex gap-8 mt-2">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked={bidForm.freeDelivery} onChange={(e) => setBidForm({ ...bidForm, freeDelivery: e.target.checked, deliveryCharges: e.target.checked ? '' : bidForm.deliveryCharges })} className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" />
+                        <Truck className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition">Free Delivery</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked={bidForm.qualityGuarantee} onChange={(e) => setBidForm({ ...bidForm, qualityGuarantee: e.target.checked })} className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
+                        <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition">Quality Guarantee</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delivery Charges (Conditional) */}
+                {!bidForm.freeDelivery && (
+                  <div className="relative flex gap-4 pb-6 border-b border-slate-100 animate-fade-in">
+                    <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0 mt-2">
+                      <span className="text-purple-600 font-bold text-lg">₹</span>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-2">
+                        Delivery Charges (₹) <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="number"
-                        required={!auction.allowPartialBids}
-                        min="1"
-                        step="0.01"
-                        value={bidForm.prices[item._id] || ''}
-                        onChange={(e) => setBidForm({
-                          ...bidForm,
-                          prices: { ...bidForm.prices, [item._id]: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg bg-white"
-                        placeholder="Price / unit"
+                        required min="0" step="1"
+                        value={bidForm.deliveryCharges}
+                        onChange={(e) => setBidForm({ ...bidForm, deliveryCharges: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-purple-300 focus:ring-4 focus:ring-purple-50 font-bold text-slate-900 bg-white transition"
                       />
-                      <p className="text-[10px] font-bold text-gray-500 mt-1.5 uppercase tracking-wider">
-                        Req. Qty: {item.quantity}
-                      </p>
+                      <p className="text-xs font-medium text-slate-500 mt-2">Additional charges for delivery</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
 
-                <div className="xl:col-span-1 flex flex-col">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                    Delivery (Days)
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    max={auction.deliveryTimeline}
-                    value={bidForm.deliveryTimeline}
-                    onChange={(e) => setBidForm({ ...bidForm, deliveryTimeline: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-base"
-                  />
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1.5">
-                    Requested: &le; {auction.deliveryTimeline} days
-                  </p>
-                </div>
-
-                <div className="md:col-span-3 flex flex-col">
-                  {planFeatures.canOfferDiscounts ? (
-                    showDiscountField ? (
-                      <div className="animate-fade-in flex flex-col h-full">
-                        <label className="block text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1">
-                          🎁 Bulk Discount (%)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={bidForm.discountOffered || ''}
-                          onChange={(e) => setBidForm({ ...bidForm, discountOffered: e.target.value })}
-                          className="w-full px-4 py-2.5 border border-emerald-200 bg-emerald-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-base text-emerald-700"
-                          placeholder="0"
-                        />
-                        <p className="text-[9px] text-emerald-600 font-bold uppercase tracking-wider mt-2 leading-tight">
-                          Applies only if Retailer awards you the entire auction.
-                        </p>
-                      </div>
-                    ) : (
-                      auction.items?.length > 1 && (
-                        <div className="h-full border border-dashed border-gray-200 rounded-lg bg-gray-50/50 flex flex-col items-center justify-center p-3 text-center min-h-[76px]">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Bulk Discount</p>
-                          <p className="text-[9px] text-gray-500 font-medium leading-tight">Bid on all items to unlock the bulk discount field.</p>
-                        </div>
-                      )
-                    )
-                  ) : (
-                    <div className="h-full border border-gray-200 rounded-lg bg-gray-50 flex flex-col items-center justify-center p-3 text-center min-h-[76px]">
-                      <span className="text-xl mb-1">🔒</span>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Bulk Discount Locked</p>
-                      <p className="text-[9px] text-indigo-500 font-bold cursor-pointer hover:underline">Upgrade to Premium</p>
+                {/* Discount (Conditional) */}
+                {planFeatures.canOfferDiscounts && showDiscountField && (
+                  <div className="relative flex gap-4 pb-6 border-b border-slate-100">
+                    <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0 mt-2">
+                      <span className="text-violet-600 font-bold text-lg">%</span>
                     </div>
-                  )}
-                </div>
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-2">
+                        Bulk Discount (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0" max="100"
+                        value={bidForm.discountOffered || ''}
+                        onChange={(e) => setBidForm({ ...bidForm, discountOffered: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-violet-300 focus:ring-4 focus:ring-violet-50 font-bold text-slate-900 bg-white transition"
+                        placeholder="0"
+                      />
+                      <p className="text-xs font-medium text-slate-500 mt-2">Applies only if Retailer awards you the entire auction.</p>
+                    </div>
+                  </div>
+                )}
 
-                <div className="md:col-span-6 lg:col-span-4 flex flex-col justify-between">
+                {/* Info Notice */}
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start">
+                  <AlertCircle className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                      Notes (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={bidForm.notes}
-                      onChange={(e) => setBidForm({ ...bidForm, notes: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder-gray-400"
-                      placeholder="Any specific terms or quality assurances..."
-                    />
-                  </div>
-                  <div className="flex gap-4 mt-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={bidForm.freeDelivery}
-                        onChange={(e) => setBidForm({ ...bidForm, freeDelivery: e.target.checked })}
-                        className="w-4 h-4 text-emerald-600 rounded cursor-pointer border-gray-300 focus:ring-emerald-500"
-                      />
-                      <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition">Free Delivery</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={bidForm.qualityGuarantee}
-                        onChange={(e) => setBidForm({ ...bidForm, qualityGuarantee: e.target.checked })}
-                        className="w-4 h-4 text-purple-600 rounded cursor-pointer border-gray-300 focus:ring-purple-500"
-                      />
-                      <span className="text-xs font-bold text-gray-600 group-hover:text-gray-900 transition">Quality Guarantee</span>
-                    </label>
+                    <p className="text-xs font-bold text-slate-900">Please review your bid details carefully before {userBid ? 'updating' : 'submitting'}.</p>
+                    <p className="text-xs font-medium text-slate-500 mt-1">Once submitted, your offer will be considered for the auction.</p>
                   </div>
                 </div>
 
-                <div className="xl:col-span-1 flex flex-col justify-end h-full">
-                  <div className="bg-blue-50/50 p-3 rounded-t-lg border-b border-blue-100 flex flex-col items-end justify-center">
-                    <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wider mb-0.5">Total Value</span>
-                    <span className={`text-lg font-black tracking-tight ${showDiscountField && bidForm.discountOffered > 0 ? 'text-blue-300 line-through text-sm' : 'text-blue-900'}`}>
-                      ₹{calculatedTotal.toLocaleString()}
-                    </span>
-                    {showDiscountField && bidForm.discountOffered > 0 && (
-                      <span className="text-lg font-black text-emerald-600">
-                        ₹{(calculatedTotal * (1 - Number(bidForm.discountOffered) / 100)).toFixed(0)} <span className="text-[10px] uppercase tracking-wider ml-0.5 text-emerald-600/70">total</span>
+              </div>
+
+              {/* Right Sidebar - Total Value */}
+              <div className="w-full lg:w-80 flex-shrink-0">
+                <div className="sticky top-6 border border-slate-100 rounded-3xl p-6 shadow-sm bg-white">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-slate-900">Total Value</h3>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    </div>
+                  </div>
+                  
+                  <p className={`text-4xl font-black ${showDiscountField && bidForm.discountOffered > 0 ? 'text-slate-300 line-through' : 'text-emerald-600'}`}>
+                    ₹{(calculatedTotal + (!bidForm.freeDelivery ? Number(bidForm.deliveryCharges || 0) : 0)).toLocaleString()}
+                  </p>
+
+                  {showDiscountField && bidForm.discountOffered > 0 && (
+                    <p className="text-4xl font-black text-emerald-600 mt-2">
+                       ₹{((calculatedTotal * (1 - Number(bidForm.discountOffered)/100)) + (!bidForm.freeDelivery ? Number(bidForm.deliveryCharges || 0) : 0)).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    </p>
+                  )}
+
+                  <hr className="border-t-2 border-dashed border-slate-100 my-6" />
+
+                  <div className="space-y-4">
+                    {auction.items?.filter(item => item.status === 'open').map(item => {
+                       const price = bidForm.prices[item._id] || 0;
+                       const total = price * item.quantity;
+                       if(total > 0) {
+                         return (
+                           <div key={item._id} className="flex justify-between items-center text-sm">
+                             <span className="text-slate-500 font-medium">Price ({price} × {item.quantity})</span>
+                             <span className="font-bold text-slate-900">₹{total.toLocaleString()}</span>
+                           </div>
+                         )
+                       }
+                       return null;
+                    })}
+                    
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 font-medium">Delivery Charges</span>
+                      <span className="font-bold text-slate-900">
+                        {bidForm.freeDelivery ? 'Free' : `₹${Number(bidForm.deliveryCharges || 0).toLocaleString()}`}
                       </span>
+                    </div>
+
+                    {showDiscountField && bidForm.discountOffered > 0 && (
+                      <div className="flex justify-between text-sm text-emerald-600 font-bold pt-2 border-t border-slate-50">
+                        <span>Bulk Discount</span>
+                        <span>-{bidForm.discountOffered}%</span>
+                      </div>
                     )}
                   </div>
+
+                  <hr className="border-t border-slate-200 my-6" />
+
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="font-bold text-slate-900">Total</span>
+                    <span className="text-xl font-black text-emerald-600">
+                      ₹{((calculatedTotal * (1 - (showDiscountField ? Number(bidForm.discountOffered || 0) : 0)/100)) + (!bidForm.freeDelivery ? Number(bidForm.deliveryCharges || 0) : 0)).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    </span>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-b-lg transition disabled:opacity-50 text-sm uppercase tracking-wider"
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl transition disabled:opacity-50 text-sm tracking-widest shadow-sm hover:shadow-md uppercase"
                   >
-                    {isSubmitting ? 'Processing...' : userBid ? 'Update Bid' : 'Submit Bid'}
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    {isSubmitting ? 'PROCESSING...' : userBid ? 'UPDATE BID' : 'SUBMIT BID'}
                   </button>
                 </div>
-              </form>
-            )}
-          </div>
+              </div>
+            </form>
+          )}
         </div>
       </div>
 
@@ -540,7 +723,11 @@ const AuctionDetail = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1.5 min-w-[120px]">
-                          {bid.freeDelivery && <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded">Free Delivery</span>}
+                          {bid.freeDelivery ? (
+                            <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded">Free Delivery</span>
+                          ) : (
+                            <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded">+ ₹{bid.deliveryCharges} Delivery</span>
+                          )}
                           {bid.qualityGuarantee && <span className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded">Quality Guarantee</span>}
                           {bid.notes && <span className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded italic max-w-[150px] truncate" title={bid.notes}>"{bid.notes}"</span>}
                         </div>

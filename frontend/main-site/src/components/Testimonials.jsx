@@ -33,10 +33,9 @@ const stars = (n) => Array.from({ length: n }, (_, i) => (
   </svg>
 ))
 
-export default function Testimonials({ progress }) {
-  const x = useTransform(progress, [0.15, 0.85], ['0%', '-40%'])
+export default function Testimonials() {
   return (
-    <section className="w-full py-16 text-white" id="testimonials">
+    <section className="w-full py-16 text-slate-900" id="testimonials">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -46,49 +45,47 @@ export default function Testimonials({ progress }) {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.28em] text-indigo-400">Client feedback</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <p className="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Client feedback</p>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
             Trusted by buyers, retailers,{' '}
-            <span className="bg-gradient-to-r from-amber-400 to-rose-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent">
               and sellers.
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-400">
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 font-medium">
             Hear how BazaarBid delivers consistent performance and trust across every role in the marketplace.
           </p>
         </motion.div>
 
-        {/* Testimonials horizontal track */}
-        <div className="relative mt-12 flex items-center">
-          <motion.div style={{ x }} className="flex gap-6 pr-[50vw]">
-            {testimonials.map((t, idx) => (
-              <div
-                key={idx}
-                className="relative flex-shrink-0 w-[420px] overflow-hidden rounded-3xl border border-white/6 bg-white/[0.03] p-10 backdrop-blur-sm shadow-xl shadow-black/30 transition-transform duration-300 hover:-translate-y-2"
-              >
-                {/* Quote mark */}
-                <div className="absolute right-8 top-8 text-7xl font-serif leading-none text-white/5 select-none">"</div>
+        {/* Testimonials grid layout */}
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {testimonials.map((t, idx) => (
+            <div
+              key={idx}
+              className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-10 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-slate-200/50"
+            >
+              {/* Quote mark */}
+              <div className="absolute right-8 top-8 text-7xl font-serif leading-none text-slate-100 select-none">"</div>
 
-                {/* Stars */}
-                <div className="mb-8 flex gap-1">{stars(t.rating)}</div>
+              {/* Stars */}
+              <div className="mb-8 flex gap-1 relative z-10">{stars(t.rating)}</div>
 
-                <p className="text-base leading-8 text-slate-300">"{t.text}"</p>
+              <p className="text-base leading-8 text-slate-700 font-medium relative z-10">"{t.text}"</p>
 
-                <div className="mt-10 flex items-center gap-4">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${t.color} text-sm font-bold text-white shrink-0`}>
-                    {t.initial}
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-white">{t.name}</p>
-                    <p className="text-sm text-slate-500">{t.role}</p>
-                  </div>
-                  <div className="ml-auto rounded-xl border border-white/8 bg-white/5 px-3 py-1 text-sm font-bold text-amber-400">
-                    5.0
-                  </div>
+              <div className="mt-10 flex items-center gap-4 relative z-10">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${t.color} text-sm font-bold text-white shrink-0 shadow-inner`}>
+                  {t.initial}
+                </div>
+                <div>
+                  <p className="text-base font-bold text-slate-900">{t.name}</p>
+                  <p className="text-sm font-medium text-slate-500">{t.role}</p>
+                </div>
+                <div className="ml-auto rounded-xl border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-bold text-amber-600 shadow-sm">
+                  5.0
                 </div>
               </div>
-            ))}
-          </motion.div>
+            </div>
+          ))}
         </div>
 
       </div>

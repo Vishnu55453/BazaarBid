@@ -1,18 +1,30 @@
 import { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Package, IndianRupee } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Package, IndianRupee, MapPin, Lock } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 export default function Analytics() {
+    const { user } = useAuth();
     const [data, setData] = useState(null);
+    const [heatmapData, setHeatmapData] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const canViewDemandHeatmaps = user?.features?.canViewDemandHeatmaps;
 
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
                 const res = await api.get('/api/analytics/seller');
                 setData(res);
+                
+                if (canViewDemandHeatmaps) {
+                    const heatmapRes = await api.get('/api/analytics/demand-heatmap');
+                    if (heatmapRes.success) {
+                        setHeatmapData(heatmapRes.heatmapData);
+                    }
+                }
             } catch (err) {
                 toast.error('Failed to load analytics');
                 console.error(err);
@@ -94,6 +106,50 @@ export default function Analytics() {
                             <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                         </AreaChart>
                     </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Demand Heatmap Section */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
+                {!canViewDemandHeatmaps && (
+                    <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-sm border border-amber-100">
+                            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Lock className="w-8 h-8 text-amber-500" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Demand Heatmaps</h3>
+                            <p className="text-gray-500 text-sm mb-6">See exactly which cities have the highest active demand for bulk supplies.</p>
+                            <button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-2 px-6 rounded-full w-full hover:from-amber-600 hover:to-orange-600 transition shadow-lg shadow-amber-200">
+                                Upgrade to Premium
+                            </button>
+                        </div>
+                    </div>
+                )}
+                
+                <div className="flex items-center gap-2 mb-6">
+                    <MapPin className="w-5 h-5 text-rose-500" />
+                    <h3 className="text-lg font-bold text-gray-900">City Demand Heatmap (Active Auctions)</h3>
+                </div>
+                
+                <div className="h-[350px] w-full">
+                    {canViewDemandHeatmaps && heatmapData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={heatmapData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="location" type="category" axisLine={false} tickLine={false} width={100} tick={{ fill: '#4b5563', fontSize: 13, fontWeight: 500 }} />
+                                <Tooltip 
+                                    cursor={{ fill: '#f8fafc' }}
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                />
+                                <Bar dataKey="activeAuctions" name="Active Auctions" fill="#f43f5e" radius={[0, 6, 6, 0]} barSize={24} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-gray-400 font-medium">No active demand data available yet.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -8,6 +8,7 @@ const AuthPage = () => {
   const { isAuthenticated, login, register } = useAuth()
   const [mode, setMode] = useState('login')
   const [loading, setLoading] = useState(false)
+  const [isPendingVerification, setIsPendingVerification] = useState(false)
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -27,20 +28,26 @@ const AuthPage = () => {
     try {
       if (mode === 'login') {
         await login({ email: form.email, password: form.password })
-        toast.success('Login successful')
       } else {
-        await register({
+        const res = await register({
           name: form.name,
           email: form.email,
           phone: form.phone,
           password: form.password,
           role: 'normal_buyer'
         })
-        toast.success('Registration successful')
+        if (!res.token) {
+          setIsPendingVerification(true)
+          return
+        }
       }
 
       navigate('/products')
     } catch (error) {
+      if (error.message?.toLowerCase().includes('pending verification')) {
+        setIsPendingVerification(true)
+        return
+      }
       toast.error(error.message || 'Unable to process request')
     } finally {
       setLoading(false)
@@ -49,6 +56,33 @@ const AuthPage = () => {
 
   if (isAuthenticated) {
     return <Navigate to="/products" replace />
+  }
+
+  if (isPendingVerification) {
+    return (
+      <div className="flex min-h-[calc(100vh-7rem)] items-center justify-center px-2 py-8">
+        <div className="w-full max-w-md overflow-hidden rounded-[32px] border border-slate-200 bg-white p-12 text-center shadow-xl shadow-slate-200/50">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50">
+            <svg className="h-10 w-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Verification Pending</h2>
+          <p className="mt-4 text-sm leading-relaxed text-slate-500">
+            Your account has been successfully created and is currently under review by our administration team. You will be able to access the portal once verified.
+          </p>
+          <button
+            onClick={() => {
+              setIsPendingVerification(false)
+              setMode('login')
+            }}
+            className="mt-8 rounded-full border border-slate-200 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

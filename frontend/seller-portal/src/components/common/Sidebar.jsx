@@ -6,10 +6,14 @@ import {
   Trophy, 
   Package, 
   UserCircle,
-  BarChart2
+  BarChart2,
+  Crown
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  const { user } = useAuth();
+  
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Analytics', path: '/analytics', icon: BarChart2 },
@@ -65,6 +69,38 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             );
           })}
         </nav>
+
+        {/* Subscription Plan Status */}
+        {user && user.subscription && (
+          <div className="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-slate-900/50">
+            <div className={`p-3 rounded-lg border flex flex-col gap-2 ${
+              user.subscription.planCode === 'premium_seller' 
+                ? 'bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-amber-500/20' 
+                : 'bg-slate-800 border-slate-700'
+            }`}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Plan</span>
+                {user.subscription.planCode === 'premium_seller' && (
+                  <Crown className="w-4 h-4 text-amber-400" />
+                )}
+              </div>
+              <p className={`text-sm font-bold ${
+                user.subscription.planCode === 'premium_seller' ? 'text-amber-400' : 'text-slate-300'
+              }`}>
+                {user.subscription.planCode === 'premium_seller' ? 'Premium Supplier' : 'Free Supplier'}
+              </p>
+              
+              {user.subscription.planCode === 'free_seller' && (
+                <button 
+                  onClick={() => window.location.href = '/profile'}
+                  className="mt-1 w-full bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-1.5 rounded transition-colors"
+                >
+                  Upgrade Plan
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -13,6 +13,7 @@ export default function AuthPage() {
   const navigate = useNavigate()
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [isPendingVerification, setIsPendingVerification] = useState(false)
   const [gstError, setGstError] = useState('')
   const [marketOptions, setMarketOptions] = useState([])
   const [formData, setFormData] = useState({
@@ -55,7 +56,6 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         await login({ email: formData.email, password: formData.password })
-        toast.success('Welcome back to the Seller Portal!')
         navigate('/')
       } else {
         // Validations
@@ -91,11 +91,20 @@ export default function AuthPage() {
           }
         }
 
-        await register(payload)
-        toast.success('Registration successful! Welcome to the Big Market Seller Portal!')
-        navigate('/')
+        const response = await register(payload)
+        
+        if (!response.token) {
+          setIsPendingVerification(true)
+          return
+        } else {
+          navigate('/')
+        }
       }
     } catch (err) {
+      if (err.message?.toLowerCase().includes('pending verification')) {
+        setIsPendingVerification(true)
+        return
+      }
       toast.error(err.message || 'An error occurred during authentication')
     } finally {
       setLoading(false)
@@ -104,6 +113,33 @@ export default function AuthPage() {
 
   const inputCls = 'w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:bg-white transition'
   const labelCls = 'block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5'
+
+  if (isPendingVerification) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-2 py-8">
+        <div className="w-full max-w-md overflow-hidden rounded-[32px] border border-slate-200 bg-white p-12 text-center shadow-xl shadow-slate-200/50">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50">
+            <svg className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Verification Pending</h2>
+          <p className="mt-4 text-sm leading-relaxed text-slate-500">
+            Your account has been successfully created and is currently under review by our administration team. You will be able to access the portal once verified.
+          </p>
+          <button
+            onClick={() => {
+              setIsPendingVerification(false)
+              setIsLogin(true)
+            }}
+            className="mt-8 rounded-full border border-slate-200 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">

@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Gavel, Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import Loader from '../../components/common/Loader';
 import StatusBadge from '../../components/common/StatusBadge';
 
 const MyBids = () => {
+  const { user } = useAuth();
   const [bids, setBids] = useState([]);
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +37,14 @@ const MyBids = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Bids</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">My Bids</h1>
+          {user?.features?.hasPremiumBadge && (
+            <span className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-amber-200 shadow-sm">
+              ★ Premium Supplier
+            </span>
+          )}
+        </div>
         <p className="text-gray-500 text-sm mt-1">Track the status of all your active and past bids.</p>
       </div>
 
@@ -113,19 +122,31 @@ const MyBids = () => {
               <tbody className="divide-y divide-gray-100">
                 {bids.map((bid) => {
                   const auction = bid.auctionId;
+                  const firstAuctionItem = auction?.items?.[0] || {};
+                  const itemCount = auction?.items?.length || 0;
+                  const productName = itemCount > 1 
+                    ? `${firstAuctionItem.productName} + ${itemCount - 1} more` 
+                    : (firstAuctionItem.productName || 'Unknown Product');
+                  const quantity = firstAuctionItem.quantity || 0;
+                  const unit = firstAuctionItem.unit || '';
+                  
+                  const totalBidValue = bid.totalBidValue || 0;
+                  const firstBidItem = bid.bidItems?.[0] || {};
+                  const pricePerUnit = firstBidItem.pricePerUnit || 0;
+
                   return (
                     <tr key={bid._id} className="hover:bg-gray-50/50 transition">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">{auction?.productName || 'Unknown Product'}</div>
+                        <div className="font-semibold text-gray-900">{productName}</div>
                         <div className="text-xs text-gray-500 flex items-center mt-1">
-                          {auction?.quantity} {auction?.unit} • 
+                          {quantity} {unit} {itemCount > 1 ? '(First Item)' : ''} • 
                           <MapPin className="w-3 h-3 mx-1 inline" /> {auction?.deliveryAddress?.city || 'N/A'}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-gray-900">₹{bid.bidPrice.toLocaleString()}</div>
+                        <div className="font-bold text-gray-900">₹{totalBidValue.toLocaleString()}</div>
                         <div className="text-xs text-gray-500 mt-1">
-                          ₹{bid.pricePerUnit}/{auction?.unit} • {bid.deliveryTimeline} days
+                          ₹{pricePerUnit}/{unit} {itemCount > 1 ? '(First Item)' : ''} • {bid.deliveryTimeline} days
                         </div>
                       </td>
                       <td className="px-6 py-4">

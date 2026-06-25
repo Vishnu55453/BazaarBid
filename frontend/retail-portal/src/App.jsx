@@ -12,6 +12,7 @@ import CreateAuction from './pages/buyer/CreateAuction'
 import MyAuctions from './pages/buyer/MyAuctions'
 import AuctionDetail from './pages/buyer/AuctionDetail'
 import Invoice from './pages/buyer/Invoice'
+import MarketInsights from './pages/buyer/MarketInsights'
 import Inventory from './pages/seller/Inventory'
 import AddProduct from './pages/seller/AddProduct'
 import MyProducts from './pages/seller/MyProducts'
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="/buyer/create-auction" element={<CreateAuction />} />
                 <Route path="/buyer/auctions" element={<MyAuctions />} />
                 <Route path="/buyer/auctions/:id" element={<AuctionDetail />} />
+                <Route path="/buyer/insights" element={<MarketInsights />} />
                 <Route path="/orders/:id/invoice" element={<Invoice />} />
                 
                 {/* Seller specific routes */}

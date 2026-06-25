@@ -157,7 +157,7 @@ function OrderCard({ order, onStatusUpdate, onCancelOrder }) {
             </svg>
             <span>
               {[
-                order.deliveryAddress.recipientName,
+                order.deliveryAddress.shopName || order.deliveryAddress.recipientName,
                 order.deliveryAddress.fullAddress || order.deliveryAddress.area,
                 order.deliveryAddress.city,
                 order.deliveryAddress.pincode,
