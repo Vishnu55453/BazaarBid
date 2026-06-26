@@ -35,6 +35,7 @@ app.use('/api/masters', require('./routes/masterRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/premium', require('./routes/premiumRoutes'));
 app.use('/api/logistics', require('./routes/logisticsRoutes'));
+app.use('/api/reports', require('./routes/reportRoutes'));
 
 // Test route
 app.get('/', (req, res) => {

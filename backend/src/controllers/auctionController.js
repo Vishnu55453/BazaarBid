@@ -41,7 +41,8 @@ const createAuction = async (req, res) => {
             endTime,
             autoAward,
             minRatingRequired,
-            verifiedSellersOnly
+            verifiedSellersOnly,
+            advancePercent
         } = req.body;
 
         // Check if user is kirana_user (use accountId to support staff)
@@ -114,7 +115,8 @@ const createAuction = async (req, res) => {
             autoAward: autoAward !== undefined ? autoAward : true,
             status: 'open',
             minRatingRequired: minRatingRequired ? Number(minRatingRequired) : 0,
-            verifiedSellersOnly: verifiedSellersOnly || false
+            verifiedSellersOnly: verifiedSellersOnly || false,
+            advancePercent: advancePercent !== undefined ? Number(advancePercent) : 0
         });
 
         await auction.save();

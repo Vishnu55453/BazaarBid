@@ -57,6 +57,22 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+    trustScore: {
+        type: Number,
+        default: 100,
+        min: 0,
+        max: 100
+    },
+    strikes: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 3
+    },
     emailVerified: { type: Boolean, default: false },
     phoneVerified: { type: Boolean, default: false },
 

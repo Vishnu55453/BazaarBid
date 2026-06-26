@@ -9,7 +9,8 @@ const bidValidation = [
     body('bidItems').isArray({ min: 1 }).withMessage('At least one bid item is required'),
     body('bidItems.*.itemId').notEmpty().withMessage('Item ID is required for each bid item'),
     body('bidItems.*.pricePerUnit').isNumeric().withMessage('Price per unit must be a number for each item'),
-    body('deliveryTimeline').isInt({ min: 1 }).withMessage('Delivery timeline must be at least 1 day')
+    body('deliveryTimeline').isInt({ min: 1 }).withMessage('Delivery timeline must be at least 1 day'),
+    body('advancePercentRequired').optional().isInt({ min: 0, max: 100 }).withMessage('Advance percentage must be between 0 and 100')
 ];
 
 // @route   GET /api/bids/my-bids

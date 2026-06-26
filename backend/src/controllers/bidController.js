@@ -31,7 +31,7 @@ const placeBid = async (req, res) => {
         }
 
         const { auctionId } = req.params;
-        const { bidItems, deliveryTimeline, notes, freeDelivery, qualityGuarantee, discountOffered, deliveryCharges } = req.body;
+        const { bidItems, deliveryTimeline, notes, freeDelivery, qualityGuarantee, discountOffered, deliveryCharges, advancePercentRequired } = req.body;
 
         // Check if auction exists
         const auction = await Auction.findById(auctionId);
@@ -119,6 +119,9 @@ const placeBid = async (req, res) => {
             }
             if (qualityGuarantee !== undefined) existingBid.qualityGuarantee = qualityGuarantee;
             existingBid.discountOffered = finalDiscount;
+            if (advancePercentRequired !== undefined) {
+                existingBid.advancePercentRequired = Number(advancePercentRequired);
+            }
             await existingBid.save();
 
             // Update rankings so retail portal shows correct ordering
@@ -161,6 +164,7 @@ const placeBid = async (req, res) => {
             deliveryCharges: finalDeliveryCharges,
             qualityGuarantee: qualityGuarantee || false,
             discountOffered: finalDiscount,
+            advancePercentRequired: advancePercentRequired !== undefined ? Number(advancePercentRequired) : (auction.advancePercent || 0),
             status: 'active'
         });
 

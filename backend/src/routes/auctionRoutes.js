@@ -19,8 +19,9 @@ const auctionValidation = [
     body('items.*.category').notEmpty().withMessage('Category is required for all items'),
     body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1 for all items'),
     body('items.*.unit').isIn(['kg', 'gram', 'litre', 'dozen', 'piece', 'box']).withMessage('Invalid unit in items'),
-    body('deliveryTimeline').isInt({ min: 1, max: 7 }).withMessage('Delivery timeline must be 1-7 days'),
-    body('endTime').isISO8601().withMessage('Valid end time is required')
+    body('deliveryTimeline').isInt({ min: 1 }).withMessage('Delivery timeline must be at least 1 day'),
+    body('endTime').isISO8601().withMessage('Valid end time is required'),
+    body('advancePercent').optional().isInt({ min: 0, max: 100 }).withMessage('Advance percentage must be between 0 and 100')
 ];
 
 // Kirana User only - Create auction

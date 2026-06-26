@@ -81,11 +81,18 @@ const auctionSchema = new mongoose.Schema({
     deliveryTimeline: {
         type: Number,
         required: true,
-        min: 1,
-        max: 7  // Maximum 7 days for delivery
+        min: 1
     },
     expectedDeliveryDate: Date,
 
+
+    // Payment Terms (Percentage of advance payment)
+    advancePercent: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 0 // 0 means 100% Cash On Delivery
+    },
 
     // Auction Settings
     startTime: {

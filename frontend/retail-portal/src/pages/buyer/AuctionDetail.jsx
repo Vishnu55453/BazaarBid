@@ -452,6 +452,9 @@ export default function AuctionDetail() {
                         ) : (
                           <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">+ ₹{bid.deliveryCharges} Delivery</span>
                         )}
+                        <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md border border-amber-200">
+                          {bid.advancePercentRequired !== undefined ? bid.advancePercentRequired : (auction.advancePercent || 0)}% Adv
+                        </span>
                         {bid.qualityGuarantee && <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md">Quality Guarantee</span>}
                         {bid.discountOffered > 0 && <span className="text-[9px] font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-md">{bid.discountOffered}% Off</span>}
                         {bid.additionalNotes && <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md italic truncate max-w-[150px]" title={bid.additionalNotes}>"{bid.additionalNotes}"</span>}

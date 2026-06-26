@@ -63,7 +63,8 @@ export default function CreateAuction() {
     endTime: '',
     autoAward: true,
     minRatingRequired: 0,
-    verifiedSellersOnly: false
+    verifiedSellersOnly: false,
+    advancePercent: 0
   })
 
   const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
@@ -374,6 +375,30 @@ export default function CreateAuction() {
                 </div>
 
                 <div className="sm:col-span-2">
+                  <label className={labelClass}>Payment Terms (Advance %) <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="100" 
+                      className={inputClass} 
+                      value={form.advancePercent} 
+                      onChange={e => set('advancePercent', e.target.value)} 
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+                      %
+                    </span>
+                  </div>
+                  <div className="mt-2 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                    <p className="text-xs font-medium text-indigo-800">
+                      You will pay <span className="font-bold">{form.advancePercent || 0}% advance</span>, 
+                      and the remaining <span className="font-bold">{100 - (Number(form.advancePercent) || 0)}% after delivery</span>.
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-2">Setting clear payment terms prevents post-auction disputes. Sellers may counter-offer.</p>
+                </div>
+
+                <div className="sm:col-span-2">
                   <div className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all mb-4
                     ${user?.features?.canFilterVerifiedSellers ? (form.verifiedSellersOnly ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200') : 'bg-slate-50 border-slate-200 opacity-70'}`}
                     onClick={() => {
@@ -444,6 +469,8 @@ export default function CreateAuction() {
                     <span className="font-bold text-slate-800">{marketOptions.find(m => m.marketId === form.preferredMarket)?.name || '—'}</span>
                     <span className="text-slate-500">Delivery:</span>
                     <span className="font-bold text-slate-800">Within {form.deliveryTimeline} day(s)</span>
+                    <span className="text-slate-500">Payment:</span>
+                    <span className="font-bold text-indigo-700">{form.advancePercent || 0}% Adv, {100 - (Number(form.advancePercent) || 0)}% Bal</span>
                   </div>
                 </div>
               </div>

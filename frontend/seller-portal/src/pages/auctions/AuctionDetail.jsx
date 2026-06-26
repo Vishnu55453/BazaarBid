@@ -35,7 +35,8 @@ const AuctionDetail = () => {
     notes: '',
     freeDelivery: false,
     deliveryCharges: '',
-    qualityGuarantee: false
+    qualityGuarantee: false,
+    advancePercentRequired: ''
   });
   const [planFeatures, setPlanFeatures] = useState({
     canViewCompetitors: true,
@@ -69,7 +70,8 @@ const AuctionDetail = () => {
               freeDelivery: res.userBid.freeDelivery || false,
               deliveryCharges: res.userBid.deliveryCharges || '',
               qualityGuarantee: res.userBid.qualityGuarantee || false,
-              discountOffered: res.userBid.discountOffered || 0
+              discountOffered: res.userBid.discountOffered || 0,
+              advancePercentRequired: res.userBid.advancePercentRequired !== undefined ? res.userBid.advancePercentRequired : (res.auction.advancePercent || 0)
             });
           } else {
             setBidForm({
@@ -78,7 +80,8 @@ const AuctionDetail = () => {
               notes: '',
               freeDelivery: false,
               deliveryCharges: '',
-              discountOffered: 0
+              discountOffered: 0,
+              advancePercentRequired: res.auction.advancePercent || 0
             });
           }
         }
@@ -130,7 +133,8 @@ const AuctionDetail = () => {
         freeDelivery: bidForm.freeDelivery,
         deliveryCharges: bidForm.freeDelivery ? 0 : Number(bidForm.deliveryCharges),
         qualityGuarantee: bidForm.qualityGuarantee,
-        discountOffered: Number(bidForm.discountOffered) || 0
+        discountOffered: Number(bidForm.discountOffered) || 0,
+        advancePercentRequired: Number(bidForm.advancePercentRequired)
       });
 
       if (res.success) {
@@ -307,7 +311,7 @@ const AuctionDetail = () => {
               ))}
               
               <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
                       <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -335,6 +339,15 @@ const AuctionDetail = () => {
                     <div>
                       <p className="text-[11px] font-bold text-slate-400 mb-0.5">Delivery Timeline</p>
                       <p className="text-sm font-black text-slate-900">{auction.deliveryTimeline} day(s)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                      <Wallet className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Payment Terms</p>
+                      <p className="text-sm font-black text-amber-700">{auction.advancePercent || 0}% Adv, {100 - (auction.advancePercent || 0)}% Bal</p>
                     </div>
                   </div>
                 </div>
@@ -438,7 +451,7 @@ const AuctionDetail = () => {
                     <div className="relative">
                       <input
                         type="number"
-                        required min="1" max={auction.deliveryTimeline}
+                        required min="1"
                         value={bidForm.deliveryTimeline}
                         onChange={(e) => setBidForm({ ...bidForm, deliveryTimeline: e.target.value })}
                         className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50 font-bold text-slate-900 bg-white transition"
@@ -448,7 +461,34 @@ const AuctionDetail = () => {
                       </div>
                     </div>
                     <p className="text-xs font-medium text-slate-500 mt-2">
-                      Requested: <span className="font-bold text-emerald-600">&le; {auction.deliveryTimeline} days</span>
+                      Requested: <span className="font-bold text-emerald-600">{auction.deliveryTimeline} days</span>. You can propose a different timeline.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Advance Percent Required */}
+                <div className="relative flex gap-4 pb-6 border-b border-slate-100">
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 mt-2">
+                    <Wallet className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-2">
+                      Counter Payment Terms (Advance %) <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        required min="0" max="100"
+                        value={bidForm.advancePercentRequired}
+                        onChange={(e) => setBidForm({ ...bidForm, advancePercentRequired: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-50 font-bold text-slate-900 bg-white transition"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-bold text-sm border-l border-slate-100 pl-4 my-2">
+                        %
+                      </div>
+                    </div>
+                    <p className="text-xs font-medium text-slate-500 mt-2">
+                      Retailer proposed: <span className="font-bold text-amber-600">{auction.advancePercent || 0}% Advance</span>. You can counter this.
                     </p>
                   </div>
                 </div>
@@ -728,6 +768,7 @@ const AuctionDetail = () => {
                           ) : (
                             <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded">+ ₹{bid.deliveryCharges} Delivery</span>
                           )}
+                          <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded">{bid.advancePercentRequired}% Adv</span>
                           {bid.qualityGuarantee && <span className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded">Quality Guarantee</span>}
                           {bid.notes && <span className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded italic max-w-[150px] truncate" title={bid.notes}>"{bid.notes}"</span>}
                         </div>

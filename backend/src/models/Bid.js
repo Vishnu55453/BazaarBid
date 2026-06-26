@@ -52,11 +52,15 @@ const bidSchema = new mongoose.Schema({
     deliveryTimeline: {
         type: Number,
         required: true,
-        min: 1,
-        max: 7
+        min: 1
     }, // in days
     deliveryCharges: { type: Number, default: 0 },
     freeDelivery: { type: Boolean, default: false },
+    advancePercentRequired: { 
+        type: Number, 
+        min: 0, 
+        max: 100 
+    },
 
     // Additional Offer
     discountOffered: {
