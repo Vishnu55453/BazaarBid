@@ -13,6 +13,7 @@ import WonAuctions from './pages/bids/WonAuctions';
 import BulkOrders from './pages/orders/BulkOrders';
 import Profile from './pages/Profile';
 import Invoice from './pages/orders/Invoice';
+import LogisticsDirectory from './pages/LogisticsDirectory';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               <Route path="/won-auctions" element={<WonAuctions />} />
               <Route path="/orders" element={<BulkOrders />} />
               <Route path="/orders/:id/invoice" element={<Invoice />} />
+              <Route path="/logistics" element={<LogisticsDirectory />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
           </Routes>

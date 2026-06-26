@@ -68,7 +68,7 @@ const register = async (req, res) => {
 
         const {
             name, email, phone, password, role,
-            location, kiranaProfile, bigMarketProfile
+            location, kiranaProfile, bigMarketProfile, deliveryProfile
         } = req.body;
 
         // Check if user exists
@@ -107,6 +107,10 @@ const register = async (req, res) => {
                 deliveryAvailable: true,
                 deliveryRadius: 10
             };
+        }
+
+        if (role === 'delivery_partner') {
+            userData.deliveryProfile = deliveryProfile || {};
         }
 
         // normal_buyer needs no additional data
@@ -154,6 +158,10 @@ const register = async (req, res) => {
             };
         }
 
+        if (role === 'delivery_partner' && user.deliveryProfile) {
+            responseData.user.deliveryProfile = user.deliveryProfile;
+        }
+
         res.status(201).json(responseData);
     } catch (error) {
         console.error(error);
@@ -166,6 +174,11 @@ const register = async (req, res) => {
 // @access  Public
 const login = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         const { email, password } = req.body;
 
         // Find user with password field

@@ -14,6 +14,12 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+import DashboardLayout from './components/layout/DashboardLayout';
+import Approvals from './pages/Approvals';
+import KycManagement from './pages/KycManagement';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+
 function AppRoutes() {
   return (
     <Routes>
@@ -22,10 +28,16 @@ function AppRoutes() {
         path="/" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <DashboardLayout />
           </ProtectedRoute>
         } 
-      />
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="approvals" element={<Approvals />} />
+        <Route path="kyc" element={<KycManagement />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

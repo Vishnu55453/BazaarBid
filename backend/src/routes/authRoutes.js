@@ -18,10 +18,10 @@ const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 const registerValidation = [
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').isMobilePhone().withMessage('Valid 10-digit phone number required'),
+    body('phone').customSanitizer(val => val ? val.replace(/\D/g, '') : '').matches(/^[0-9]{10}$/).withMessage('Valid 10-digit phone number required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     // UPDATED: New roles
-    body('role').isIn(['normal_buyer', 'kirana_user', 'big_market_seller']).withMessage('Invalid role')
+    body('role').isIn(['normal_buyer', 'kirana_user', 'big_market_seller', 'delivery_partner']).withMessage('Invalid role')
 ];
 
 const loginValidation = [

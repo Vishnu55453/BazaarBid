@@ -25,6 +25,8 @@ To run all portals at the same time without port conflicts, we assigned fixed po
 - Seller Portal: `http://localhost:5174`
 - Retail Portal: `http://localhost:5175`
 - Main Site: `http://localhost:5176`
+- Admin Portal: `http://localhost:5177`
+- Delivery Portal: `http://localhost:5178`
 
 These are set by updating each portal's `dev` script to pass `--port <port>` to Vite.
 

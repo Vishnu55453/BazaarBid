@@ -127,6 +127,12 @@ export default function Dashboard() {
                         {user.role === 'normal_buyer' && (
                           <div className="text-sm text-slate-500">Normal Consumer</div>
                         )}
+                        {user.role === 'delivery_partner' && (
+                          <>
+                            <div className="font-medium text-slate-700">Driver</div>
+                            <div className="text-xs text-slate-500 mt-1">License: {user.deliveryProfile?.licenseNumber || 'N/A'}</div>
+                          </>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button

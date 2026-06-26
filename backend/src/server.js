@@ -34,6 +34,7 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/masters', require('./routes/masterRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/premium', require('./routes/premiumRoutes'));
+app.use('/api/logistics', require('./routes/logisticsRoutes'));
 
 // Test route
 app.get('/', (req, res) => {

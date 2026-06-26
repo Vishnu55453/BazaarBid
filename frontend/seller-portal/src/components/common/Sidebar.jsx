@@ -7,7 +7,8 @@ import {
   Package, 
   UserCircle,
   BarChart2,
-  Crown
+  Crown,
+  Truck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +22,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     { name: 'My Bids', path: '/bids', icon: ListOrdered },
     { name: 'Won Auctions', path: '/won-auctions', icon: Trophy },
     { name: 'Bulk Orders', path: '/orders', icon: Package },
+    { name: 'Find Vehicles', path: '/logistics', icon: Truck },
     { name: 'Profile', path: '/profile', icon: UserCircle },
   ];
 

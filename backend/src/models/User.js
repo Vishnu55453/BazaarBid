@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: {
-            values: ['normal_buyer', 'kirana_user', 'big_market_seller', 'admin'],
+            values: ['normal_buyer', 'kirana_user', 'big_market_seller', 'admin', 'delivery_partner'],
             message: '{VALUE} is not a valid role'
         },
         required: true
@@ -72,6 +72,12 @@ const userSchema = new mongoose.Schema({
             preferredMarkets: {
                 type: [String],
                 default: []
+            },
+            bankDetails: {
+                accountName: String,
+                accountNumber: String,
+                ifscCode: String,
+                bankName: String
             },
             deliveryAddresses: [{
                 shopName: String,
@@ -135,6 +141,18 @@ const userSchema = new mongoose.Schema({
         deliveryRadius: { type: Number, default: 10 }, // kilometers from market
         deliveryCharges: { type: Number, default: 0 },
         verified: { type: Boolean, default: false }
+    },
+
+    // DELIVERY PARTNER PROFILE
+    deliveryProfile: {
+        licenseNumber: { type: String },
+        vehicles: [{
+            vehicleType: { type: String, enum: ['Bike', 'Auto/Ape', 'Mini Truck (Tata Ace)', 'Pickup (Bolero)', 'Tempo (407)', 'Truck (6-Wheeler)', 'Heavy Truck (10+ Wheeler)', 'Refrigerated Truck'] },
+            registrationNumber: { type: String },
+            capacityKg: { type: Number },
+            city: { type: String },
+            isActive: { type: Boolean, default: true }
+        }]
     },
 
     // Location (for all users)
