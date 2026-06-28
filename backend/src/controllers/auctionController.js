@@ -246,6 +246,16 @@ const getAuctionById = async (req, res) => {
             return res.status(404).json({ message: 'Auction not found' });
         }
 
+        // Populate market name if it's an ObjectId
+        const mongoose = require('mongoose');
+        const MarketMaster = require('../models/MarketMaster');
+        if (auction.preferredMarket && mongoose.Types.ObjectId.isValid(auction.preferredMarket)) {
+            const mkt = await MarketMaster.findById(auction.preferredMarket);
+            if (mkt) {
+                auction.preferredMarketName = mkt.name;
+            }
+        }
+
         // Get all bids for this auction
         let bids = await Bid.find({ auctionId: auction._id, status: { $in: ['active', 'won'] } })
             .populate('sellerId', 'name bigMarketProfile rating subscription')

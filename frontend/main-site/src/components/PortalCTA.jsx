@@ -41,12 +41,25 @@ const portals = [
     icon: '🏠',
     dotColor: 'bg-emerald-500',
   },
+  {
+    title: 'Delivery Portal',
+    description: 'Manage logistics, track active shipments, and ensure timely deliveries with advanced routing.',
+    features: ['Real-time order tracking', 'Route optimization', 'Delivery confirmation'],
+    button: 'Open Delivery Portal',
+    link: 'http://localhost:5178',
+    gradient: 'from-rose-50 to-white',
+    ring: 'ring-rose-100',
+    accent: 'text-rose-600 bg-rose-100 border border-rose-200 shadow-inner',
+    glow: 'shadow-rose-100',
+    icon: '🚚',
+    dotColor: 'bg-rose-500',
+  },
 ]
 
 export default function PortalCTA() {
   return (
-    <section className="w-full py-16 text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-0 text-slate-900">
+      <div className="mx-auto max-w-8xl px-0 sm:px-0 lg:px-0">
 
         {/* Header */}
         <motion.div
@@ -68,18 +81,18 @@ export default function PortalCTA() {
         </motion.div>
 
         {/* Portal cards grid layout */}
-        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4 px-16">
           {portals.map((portal, idx) => (
             <div
               key={idx}
-              className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br ${portal.gradient} p-8 ring-1 ${portal.ring} shadow-md ${portal.glow} transition-all duration-300 hover:-translate-y-2 hover:shadow-xl`}
+              className={`flex flex-col group relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br ${portal.gradient} p-8 ring-1 ${portal.ring} shadow-md ${portal.glow} transition-all duration-300 hover:-translate-y-2 hover:shadow-xl`}
             >
               <div className={`inline-flex h-16 w-16 items-center justify-center rounded-3xl ${portal.accent}`}>
                 <span className="text-3xl">{portal.icon}</span>
               </div>
 
               <h3 className="mt-8 text-2xl font-bold text-slate-900">{portal.title}</h3>
-              <p className="mt-4 text-base leading-relaxed text-slate-600 font-medium min-h-[80px]">{portal.description}</p>
+              <p className="mt-4 text-base leading-relaxed text-slate-600 font-medium">{portal.description}</p>
 
               <ul className="mt-8 space-y-4">
                 {portal.features.map((f, fidx) => (
@@ -90,15 +103,17 @@ export default function PortalCTA() {
                 ))}
               </ul>
 
-              <a
-                href={portal.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-12 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-4 text-sm font-bold text-white transition hover:bg-slate-800 shadow-md shadow-slate-300"
-              >
-                {portal.button}
-                <FiArrowRight className="h-5 w-5" />
-              </a>
+              <div className="mt-auto pt-10">
+                <a
+                  href={portal.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-4 text-sm font-bold text-white transition hover:bg-slate-800 shadow-md shadow-slate-300"
+                >
+                  {portal.button}
+                  <FiArrowRight className="h-5 w-5" />
+                </a>
+              </div>
             </div>
           ))}
         </div>
@@ -108,7 +123,7 @@ export default function PortalCTA() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 px-8 py-12 shadow-xl shadow-indigo-200 sm:px-12"
+          className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 px-8 py-12 shadow-xl shadow-indigo-200 sm:px-12 mx-16"
         >
           <div className="sm:flex sm:items-center sm:justify-between">
             <div>

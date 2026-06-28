@@ -130,7 +130,7 @@ export default function AuctionDetail() {
                 <div className={`w-1.5 h-1.5 rounded-full ${auction.status === 'open' ? 'bg-emerald-500' : 'bg-slate-500'}`}></div>
                 {auction.status.charAt(0).toUpperCase() + auction.status.slice(1)}
               </div>
-              
+
               {auction.status === 'open' && (
                 <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full text-xs font-bold">
                   <Clock className="w-3.5 h-3.5" />
@@ -147,7 +147,7 @@ export default function AuctionDetail() {
               </button>
             )}
           </div>
-          
+
           {auction.items && auction.items.length > 0 && (
             <div className="space-y-8">
               {auction.items.map((item, index) => (
@@ -167,7 +167,7 @@ export default function AuctionDetail() {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="bg-emerald-50 rounded-2xl p-4 flex items-center gap-4 min-w-[200px] justify-between border border-emerald-100/50">
                       <div>
                         <p className="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Item Status</p>
@@ -182,7 +182,7 @@ export default function AuctionDetail() {
                   </div>
 
                   <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-b border-slate-100 divide-slate-100">
                       <div className="p-6 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
                           <Package className="w-5 h-5 text-indigo-600" />
@@ -199,24 +199,33 @@ export default function AuctionDetail() {
                         <div>
                           <p className="text-[11px] font-bold text-slate-400 mb-0.5">Budget Range</p>
                           <p className="text-base font-black text-slate-900">
-                            {item.budgetRange?.min && item.budgetRange?.max 
-                              ? `₹${item.budgetRange.min} – ₹${item.budgetRange.max} / unit` 
+                            {item.budgetRange?.min && item.budgetRange?.max
+                              ? `₹${item.budgetRange.min} – ₹${item.budgetRange.max} / unit`
                               : 'Not specified'}
                           </p>
                         </div>
                       </div>
                     </div>
-                    {item.qualitySpecs?.packaging && (
-                      <div className="border-t border-slate-100 p-6 flex items-center gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                      <div className="p-6 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
                           <Package className="w-5 h-5 text-purple-600" />
                         </div>
                         <div>
                           <p className="text-[11px] font-bold text-slate-400 mb-0.5">Packaging</p>
-                          <p className="text-base font-black text-slate-900">{item.qualitySpecs.packaging}</p>
+                          <p className="text-base font-black text-slate-900">{item.qualitySpecs?.packaging || 'Not specified'}</p>
                         </div>
                       </div>
-                    )}
+                      <div className="p-6 flex items-center gap-4 bg-amber-50/30">
+                        <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 border border-amber-200">
+                          <Wallet className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-amber-600/80 mb-0.5 uppercase tracking-wider">Payment Terms</p>
+                          <p className="text-base font-black text-amber-900">{auction.advancePercent || 0}% Advance, {100 - (auction.advancePercent || 0)}% On Delivery</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   {item.qualitySpecs?.customRequirements && (
                     <div className="mt-3">
@@ -226,9 +235,9 @@ export default function AuctionDetail() {
                   )}
                 </div>
               ))}
-              
+
               <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
                       <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -241,12 +250,12 @@ export default function AuctionDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                      <Target className="w-4 h-4 text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-4 h-4 text-purple-600" />
                     </div>
                     <div>
                       <p className="text-[11px] font-bold text-slate-400 mb-0.5">Preferred Market</p>
-                      <p className="text-sm font-black text-slate-900">{auction.preferredMarket?.replace(/_/g, ' ')}</p>
+                      <p className="text-sm font-black text-slate-900">{auction.preferredMarketName || auction.preferredMarket?.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -258,15 +267,14 @@ export default function AuctionDetail() {
                       <p className="text-sm font-black text-slate-900">{auction.deliveryTimeline} day(s)</p>
                     </div>
                   </div>
-                </div>
-                
-                <div className="bg-slate-50/80 rounded-2xl p-4 flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-500 mb-0.5">Delivery To</p>
-                    <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Delivery To</p>
+                      <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -284,7 +292,7 @@ export default function AuctionDetail() {
                 <p className="text-sm text-emerald-600 mt-1 font-bold">₹{auction.winningPricePerUnit?.toFixed(2)}/unit</p>
                 <p className="text-xs text-slate-500 mt-2 font-medium">Awarded on {new Date(auction.awardedAt).toLocaleDateString('en-IN')}</p>
               </div>
-              
+
               {auction.orderId && (
                 <div className="w-full max-w-sm pl-6 border-l border-emerald-200/50">
                   {auction.orderId.status === 'pending' ? (
@@ -321,7 +329,7 @@ export default function AuctionDetail() {
               </span>
             )}
           </div>
-          
+
           {/* Bid Summary */}
           {bids.length > 0 && (
             <div className="flex gap-8 bg-white px-5 py-2.5 rounded-xl border border-slate-200 shadow-sm">
@@ -343,16 +351,16 @@ export default function AuctionDetail() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-center border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                <th className="px-6 py-4">Rank</th>
-                <th className="px-6 py-4">Supplier</th>
-                <th className="px-6 py-4">Total Bid</th>
-                <th className="px-6 py-4">Items Included</th>
-                <th className="px-6 py-4">Delivery</th>
-                <th className="px-6 py-4">Perks & Notes</th>
-                <th className="px-6 py-4 text-center">Action</th>
+              <tr className="bg-slate-50 border-b border-slate-100 text-sm font-medium text-slate-700">
+                <th className="px-6 py-4 font-medium">Rank</th>
+                <th className="px-6 py-4 font-medium">Supplier</th>
+                <th className="px-6 py-4 font-medium">Total Bid</th>
+                <th className="px-6 py-4 font-medium">Items Included</th>
+                <th className="px-6 py-4 font-medium">Delivery</th>
+                <th className="px-6 py-4 font-medium">Perks & Notes</th>
+                <th className="px-6 py-4 font-medium text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -370,36 +378,25 @@ export default function AuctionDetail() {
                 </tr>
               ) : (
                 bids.map((bid, idx) => (
-                  <tr key={bid._id} 
-                    className={`transition-all hover:bg-slate-50/80
+                  <tr key={bid._id}
+                    className={`transition-all hover:bg-slate-50/80 text-sm font-medium
                       ${bid.status === 'won' ? 'bg-emerald-50/50' :
                         bid.rank === 1 ? 'bg-indigo-50/20' : 'bg-white'}`}
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col items-start gap-1.5">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black
-                          ${bid.rank === 1 ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
-                          #{bid.rank || idx + 1}
-                        </div>
-                        {bid.rank === 1 && bid.status !== 'won' && (
-                          <span className="text-[9px] font-extrabold text-indigo-600 uppercase tracking-wider">Lowest</span>
-                        )}
-                        {bid.status === 'won' && (
-                          <span className="text-[9px] font-extrabold text-emerald-600 uppercase tracking-wider">Winner</span>
-                        )}
-                      </div>
+                    <td className="px-6 py-4 text-slate-700">
+                      {bid.rank || idx + 1}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <div className="font-bold text-slate-800 text-sm flex flex-col items-start gap-1">
+                      <div className="flex flex-col items-center">
+                        <div className="text-slate-700 flex flex-col items-center gap-1">
                           <span>{bid.sellerId?.bigMarketProfile?.shopName || bid.sellerId?.name || 'Supplier'}</span>
                           {bid.sellerId?.subscription?.planCode === 'premium_seller' && (
-                            <span className="inline-flex items-center gap-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-amber-200">
+                            <span className="inline-flex items-center gap-0.5 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 text-xs px-1.5 py-0.5 rounded border border-amber-200">
                               ★ Premium
                             </span>
                           )}
                         </div>
-                        <button 
+                        <button
                           onClick={() => {
                             setSelectedSeller({
                               id: bid.sellerId?._id,
@@ -407,33 +404,33 @@ export default function AuctionDetail() {
                             })
                             setReviewsModalOpen(true)
                           }}
-                          className="text-xs font-medium text-slate-500 mt-0.5 flex items-center hover:text-indigo-600 transition text-left"
+                          className="text-xs text-slate-500 mt-0.5 flex items-center justify-center hover:text-indigo-600 transition"
                         >
-                          <span className="text-yellow-400 mr-1">★</span> 
+                          <span className="text-yellow-400 mr-1">★</span>
                           {bid.sellerId?.rating?.average || 0} ({bid.sellerId?.rating?.count || 0} reviews)
                         </button>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className={`text-lg font-black tracking-tight ${bid.discountOffered > 0 && auction.items?.length > 1 ? 'text-slate-400 line-through text-sm' : 'text-slate-900'}`}>₹{bid.totalBidValue}</p>
+                      <p className={`${bid.discountOffered > 0 && auction.items?.length > 1 ? 'text-slate-400 line-through' : 'text-slate-700'}`}>₹{bid.totalBidValue}</p>
                       {bid.discountOffered > 0 && auction.items?.length > 1 && bid.bidItems?.length === auction.items?.length && (
-                        <div className="mt-1 flex flex-col items-start gap-1">
-                          <p className="text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded leading-tight">
+                        <div className="mt-1 flex flex-col items-center gap-1">
+                          <p className="text-xs text-violet-600 bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded leading-tight">
                             -{bid.discountOffered}% if all awarded
                           </p>
-                          <p className="text-base font-black text-emerald-600">
-                            ₹{(bid.totalBidValue * (1 - bid.discountOffered / 100)).toFixed(0)} <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">total</span>
+                          <p className="text-emerald-600">
+                            ₹{(bid.totalBidValue * (1 - bid.discountOffered / 100)).toFixed(0)} <span className="text-xs text-slate-500 ml-0.5">total</span>
                           </p>
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1 items-center">
                         {bid.bidItems?.map(bItem => {
                           const aItem = auction.items?.find(i => i._id === bItem.itemId)
                           return (
-                            <div key={bItem.itemId} className="text-xs bg-slate-50 border border-slate-100 p-1.5 rounded-md flex justify-between items-center gap-3">
-                              <span className="font-bold text-slate-700 truncate max-w-[120px]">{aItem?.productName || 'Item'}</span>
+                            <div key={bItem.itemId} className="text-sm bg-slate-50 border border-slate-100 p-1.5 rounded flex items-center justify-center gap-2">
+                              <span className="text-slate-700 truncate max-w-[120px]">{aItem?.productName || 'Item'}</span>
                               <span className="text-slate-600">₹{bItem.pricePerUnit}/unit</span>
                             </div>
                           )
@@ -441,38 +438,47 @@ export default function AuctionDetail() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-bold text-slate-600 flex items-center gap-1">
-                        🚚 {bid.deliveryTimeline} day{bid.deliveryTimeline > 1 ? 's' : ''}
+                      <span className="text-slate-600 flex items-center justify-center gap-1">
+                        {bid.deliveryTimeline} day{bid.deliveryTimeline > 1 ? 's' : ''}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1.5 min-w-[120px]">
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 min-w-[120px]">
                         {bid.freeDelivery ? (
-                          <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md">Free Delivery</span>
+                          <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100">Free Delivery</span>
                         ) : (
-                          <span className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">+ ₹{bid.deliveryCharges} Delivery</span>
+                          <span className="text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-orange-100">+ ₹{bid.deliveryCharges} Delivery</span>
                         )}
-                        <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md border border-amber-200">
+                        <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
                           {bid.advancePercentRequired !== undefined ? bid.advancePercentRequired : (auction.advancePercent || 0)}% Adv
                         </span>
-                        {bid.qualityGuarantee && <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md">Quality Guarantee</span>}
-                        {bid.discountOffered > 0 && <span className="text-[9px] font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-md">{bid.discountOffered}% Off</span>}
-                        {bid.additionalNotes && <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md italic truncate max-w-[150px]" title={bid.additionalNotes}>"{bid.additionalNotes}"</span>}
+                        {bid.qualityGuarantee && <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">Quality Guarantee</span>}
+                        {bid.discountOffered > 0 && <span className="text-xs bg-violet-50 text-violet-700 px-2 py-0.5 rounded border border-violet-100">{bid.discountOffered}% Off</span>}
+                        {bid.additionalNotes && <span className="text-xs bg-slate-50 text-slate-600 px-2 py-0.5 rounded border border-slate-200 italic truncate max-w-[150px]" title={bid.additionalNotes}>"{bid.additionalNotes}"</span>}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-6 py-4 text-center group">
                       {auction.status === 'open' && bid.status === 'active' ? (
-                        <button 
+                        <button
                           onClick={() => handleAwardBid(bid._id)}
                           disabled={awardingBidId === bid._id}
-                          className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold uppercase tracking-wider rounded-xl transition shadow-sm disabled:opacity-50 whitespace-nowrap"
+                          className="w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center transition shadow-sm disabled:opacity-50 mx-auto relative"
                         >
-                          {awardingBidId === bid._id ? 'Accepting...' : 'Accept Bid'}
+                          {awardingBidId === bid._id ? (
+                            <svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          <span className="absolute right-[110%] top-1/2 -translate-y-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+                            Accept Bid
+                          </span>
                         </button>
                       ) : bid.status === 'won' ? (
-                        <span className="text-[11px] font-bold text-emerald-600 bg-emerald-100 px-3 py-1.5 rounded-xl uppercase tracking-wider">Accepted</span>
+                        <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">Accepted</span>
                       ) : (
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">—</span>
+                        <span className="text-slate-400">—</span>
                       )}
                     </td>
                   </tr>
@@ -483,7 +489,7 @@ export default function AuctionDetail() {
         </div>
       </div>
 
-      <ReviewsModal 
+      <ReviewsModal
         isOpen={reviewsModalOpen}
         onClose={() => setReviewsModalOpen(false)}
         userId={selectedSeller.id}

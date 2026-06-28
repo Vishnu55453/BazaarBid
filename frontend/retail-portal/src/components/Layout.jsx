@@ -61,7 +61,7 @@ const mobileNavItems = [
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none w-full max-w-none m-0 p-0">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans select-none w-full max-w-none m-0 p-0">
       <Header />
       <div className="flex flex-1 w-full relative">
         <Sidebar />

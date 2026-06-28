@@ -265,7 +265,7 @@ const AuctionDetail = () => {
                   </div>
 
                   <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-b border-slate-100 divide-slate-100">
                       <div className="p-6 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
                           <Package className="w-5 h-5 text-indigo-600" />
@@ -289,17 +289,26 @@ const AuctionDetail = () => {
                         </div>
                       </div>
                     </div>
-                    {item.qualitySpecs?.packaging && (
-                      <div className="border-t border-slate-100 p-6 flex items-center gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                      <div className="p-6 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
                           <Package className="w-5 h-5 text-purple-600" />
                         </div>
                         <div>
                           <p className="text-[11px] font-bold text-slate-400 mb-0.5">Packaging</p>
-                          <p className="text-base font-black text-slate-900">{item.qualitySpecs.packaging}</p>
+                          <p className="text-base font-black text-slate-900">{item.qualitySpecs?.packaging || 'Not specified'}</p>
                         </div>
                       </div>
-                    )}
+                      <div className="p-6 flex items-center gap-4 bg-amber-50/30">
+                        <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 border border-amber-200">
+                          <Wallet className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold text-amber-600/80 mb-0.5 uppercase tracking-wider">Payment Terms</p>
+                          <p className="text-base font-black text-amber-900">{auction.advancePercent || 0}% Advance, {100 - (auction.advancePercent || 0)}% On Delivery</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   {item.qualitySpecs?.customRequirements && (
                     <div className="mt-3">
@@ -311,7 +320,7 @@ const AuctionDetail = () => {
               ))}
               
               <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
                       <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -324,12 +333,12 @@ const AuctionDetail = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                      <Target className="w-4 h-4 text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-4 h-4 text-purple-600" />
                     </div>
                     <div>
                       <p className="text-[11px] font-bold text-slate-400 mb-0.5">Preferred Market</p>
-                      <p className="text-sm font-black text-slate-900">{auction.preferredMarket?.replace(/_/g, ' ')}</p>
+                      <p className="text-sm font-black text-slate-900">{auction.preferredMarketName || auction.preferredMarket?.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -342,23 +351,13 @@ const AuctionDetail = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <Wallet className="w-4 h-4 text-amber-600" />
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Payment Terms</p>
-                      <p className="text-sm font-black text-amber-700">{auction.advancePercent || 0}% Adv, {100 - (auction.advancePercent || 0)}% Bal</p>
+                      <p className="text-[11px] font-bold text-slate-400 mb-0.5">Delivery To</p>
+                      <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-50/80 rounded-2xl p-4 flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-500 mb-0.5">Delivery To</p>
-                    <p className="text-sm font-black text-slate-900">{auction.deliveryAddress?.area}, {auction.deliveryAddress?.city} - {auction.deliveryAddress?.pincode}</p>
                   </div>
                 </div>
               </div>
@@ -692,15 +691,15 @@ const AuctionDetail = () => {
           ) : (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-center border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500 font-bold">
-                <th className="px-6 py-4">Rank</th>
-                <th className="px-6 py-4">Competitor</th>
-                <th className="px-6 py-4">Items Included</th>
-                <th className="px-6 py-4 text-right">Total Value</th>
-                <th className="px-6 py-4">Delivery</th>
-                <th className="px-6 py-4">Perks & Notes</th>
+              <tr className="bg-gray-50 border-b border-gray-100 text-sm font-medium text-gray-700">
+                <th className="px-6 py-4 font-medium">Rank</th>
+                <th className="px-6 py-4 font-medium">Competitor</th>
+                <th className="px-6 py-4 font-medium">Items Included</th>
+                <th className="px-6 py-4 font-medium text-center">Total Value</th>
+                <th className="px-6 py-4 font-medium">Delivery</th>
+                <th className="px-6 py-4 font-medium">Perks & Notes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -717,60 +716,57 @@ const AuctionDetail = () => {
                 bids.map((bid, index) => {
                   const isMine = bid.sellerId?._id === userBid?.sellerId;
                   return (
-                    <tr key={bid._id} className={`transition-colors hover:bg-gray-50 ${isMine ? 'bg-blue-50/40' : ''}`}>
-                      <td className="px-6 py-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shadow-sm border
-                          ${index === 0 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
-                          #{index + 1}
-                        </div>
+                    <tr key={bid._id} className={`transition-colors hover:bg-gray-50 text-sm font-medium ${isMine ? 'bg-blue-50/40' : ''}`}>
+                      <td className="px-6 py-4 text-gray-700">
+                        {index + 1}
                       </td>
                       <td className="px-6 py-4">
-                        <p className={`font-bold flex items-center gap-2 ${isMine ? 'text-blue-700' : 'text-gray-900'}`}>
+                        <p className={`flex items-center justify-center gap-2 ${isMine ? 'text-blue-700' : 'text-gray-700'}`}>
                           {isMine ? 'Your Bid' : bid.sellerId?.bigMarketProfile?.shopName || bid.sellerId?.name || 'Competitor'}
-                          {isMine && <span className="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-wider">You</span>}
+                          {isMine && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">You</span>}
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 items-center">
                           {bid.bidItems?.map(bItem => {
                             const aItem = auction.items?.find(i => i._id === bItem.itemId);
                             return (
-                              <div key={bItem.itemId} className="text-xs bg-gray-50 border border-gray-100 p-1.5 rounded-md flex justify-between items-center gap-3">
-                                <span className="font-bold text-gray-700 truncate max-w-[120px]">{aItem?.productName || 'Item'}</span>
+                              <div key={bItem.itemId} className="text-sm bg-gray-50 border border-gray-100 p-1.5 rounded flex items-center justify-center gap-2">
+                                <span className="text-gray-700 truncate max-w-[120px]">{aItem?.productName || 'Item'}</span>
                                 <span className="text-gray-600">₹{bItem.pricePerUnit}/unit</span>
                               </div>
                             );
                           })}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <p className={`text-sm font-bold ${bid.discountOffered > 0 && auction.items?.length > 1 ? 'text-gray-400 line-through' : 'text-gray-700'}`}>₹{bid.totalBidValue}</p>
+                      <td className="px-6 py-4">
+                        <p className={`${bid.discountOffered > 0 && auction.items?.length > 1 ? 'text-gray-400 line-through' : 'text-gray-700'}`}>₹{bid.totalBidValue}</p>
                         {bid.discountOffered > 0 && auction.items?.length > 1 && bid.bidItems?.length === auction.items?.length && (
-                          <div className="mt-1 flex flex-col items-end gap-1">
-                            <p className="text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded leading-tight whitespace-nowrap">
+                          <div className="mt-1 flex flex-col items-center gap-1">
+                            <p className="text-xs text-violet-600 bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded leading-tight whitespace-nowrap">
                               -{bid.discountOffered}% if all awarded
                             </p>
-                            <p className="text-sm font-black text-emerald-600 whitespace-nowrap">
-                              ₹{(bid.totalBidValue * (1 - bid.discountOffered / 100)).toFixed(0)} <span className="text-[9px] uppercase tracking-wider ml-0.5 text-emerald-600/70">total</span>
+                            <p className="text-emerald-600">
+                              ₹{(bid.totalBidValue * (1 - bid.discountOffered / 100)).toFixed(0)} <span className="text-xs text-gray-500 ml-0.5">total</span>
                             </p>
                           </div>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-gray-600 font-medium flex items-center gap-1.5 whitespace-nowrap">
+                        <p className="text-gray-600 flex items-center justify-center gap-1.5 whitespace-nowrap">
                           <Clock className="w-4 h-4 text-gray-400" /> {bid.deliveryTimeline} days
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1.5 min-w-[120px]">
+                        <div className="flex flex-wrap items-center justify-center gap-1.5 min-w-[120px]">
                           {bid.freeDelivery ? (
-                            <span className="text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded">Free Delivery</span>
+                            <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded">Free Delivery</span>
                           ) : (
-                            <span className="text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded">+ ₹{bid.deliveryCharges} Delivery</span>
+                            <span className="text-xs bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 rounded">+ ₹{bid.deliveryCharges} Delivery</span>
                           )}
-                          <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded">{bid.advancePercentRequired}% Adv</span>
-                          {bid.qualityGuarantee && <span className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded">Quality Guarantee</span>}
-                          {bid.notes && <span className="text-[10px] font-medium bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded italic max-w-[150px] truncate" title={bid.notes}>"{bid.notes}"</span>}
+                          <span className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded">{bid.advancePercentRequired}% Adv</span>
+                          {bid.qualityGuarantee && <span className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded">Quality Guarantee</span>}
+                          {bid.notes && <span className="text-xs bg-gray-50 text-gray-600 border border-gray-200 px-2 py-0.5 rounded italic max-w-[150px] truncate" title={bid.notes}>"{bid.notes}"</span>}
                         </div>
                       </td>
                     </tr>

@@ -1,46 +1,46 @@
 import { motion, useTransform } from 'framer-motion'
-import { FiTrendingUp, FiZap, FiUsers, FiShield, FiBarChart2, FiLock } from 'react-icons/fi'
+import { FiTrendingUp, FiZap, FiShield, FiBarChart2, FiLayers, FiPercent } from 'react-icons/fi'
 
 const features = [
   {
-    icon: FiShield,
-    title: 'Verified Sellers Only',
-    description: 'Ensure total trust by restricting your auctions so only KYC-verified wholesale suppliers can place bids.',
+    icon: FiBarChart2,
+    title: 'Live Competitor Rank Tracking',
+    description: 'Free suppliers bid blindly, while Premium users instantly see their real-time rank against competitors to adjust bids dynamically and win more deals.',
     color: 'from-emerald-50 to-white',
     iconBg: 'bg-emerald-100 text-emerald-600',
   },
   {
-    icon: FiTrendingUp,
-    title: 'Market Insights',
-    description: 'Track real-time average winning bids and price trends across all categories to forecast your sourcing budget.',
+    icon: FiPercent,
+    title: 'Conditional Multi-Item Discounts',
+    description: 'Empower suppliers to offer strategic volume discounts that are only applied if they are awarded all items in a complex multi-item auction.',
     color: 'from-indigo-50 to-white',
     iconBg: 'bg-indigo-100 text-indigo-600',
   },
   {
-    icon: FiBarChart2,
-    title: 'Demand Heatmaps',
-    description: 'Suppliers get access to regional demand intelligence, showing exactly which cities have the highest volume of active auctions.',
+    icon: FiLayers,
+    title: 'Granular Logistics & Payments',
+    description: 'Specify custom payment terms, packaging requirements, advance percentages, and delivery fees down to the individual item level.',
     color: 'from-amber-50 to-white',
     iconBg: 'bg-amber-100 text-amber-600',
   },
   {
     icon: FiZap,
-    title: 'Premium Supplier Badges',
-    description: 'Stand out from the crowd. Premium suppliers earn a visible trust badge, increasing their chances of winning large bids.',
+    title: 'One-Click Bid Awards',
+    description: 'A powerful, responsive bidding engine where buyers can instantly compare comprehensive supplier bids side-by-side and award deals with a single click.',
     color: 'from-violet-50 to-white',
     iconBg: 'bg-violet-100 text-violet-600',
   },
   {
-    icon: FiUsers,
-    title: 'Connected marketplace',
-    description: 'Link retail buyers, wholesalers, and sellers across role-specific, modern portals.',
+    icon: FiShield,
+    title: 'Verified Wholesale Network',
+    description: 'Ensure absolute trust and quality control by restricting your high-value auctions so only KYC-verified wholesale suppliers can place bids.',
     color: 'from-sky-50 to-white',
     iconBg: 'bg-sky-100 text-sky-600',
   },
   {
-    icon: FiLock,
-    title: 'Anonymous Bidding',
-    description: 'Maintain leverage. Supplier identities and competitor bids are strategically masked until you decide to reveal them.',
+    icon: FiTrendingUp,
+    title: 'Real-Time Market Insights',
+    description: 'Track real-time average winning bids and price trends across all retail categories to accurately forecast your future sourcing budgets.',
     color: 'from-rose-50 to-white',
     iconBg: 'bg-rose-100 text-rose-600',
   },
@@ -48,7 +48,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="w-full py-16 text-slate-900">
+    <section className="w-full py-0 text-slate-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Header */}

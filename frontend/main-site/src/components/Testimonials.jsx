@@ -35,7 +35,7 @@ const stars = (n) => Array.from({ length: n }, (_, i) => (
 
 export default function Testimonials() {
   return (
-    <section className="w-full py-16 text-slate-900" id="testimonials">
+    <section className="w-full py-0 text-slate-900" id="testimonials">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
