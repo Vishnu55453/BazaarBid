@@ -1,180 +1,120 @@
-import { motion } from 'framer-motion'
-import { FiArrowRight, FiLayers, FiShield, FiTrendingUp, FiActivity, FiTruck, FiCheckCircle } from 'react-icons/fi'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FiArrowRight, FiLayers, FiShield, FiTrendingUp, FiActivity, FiTruck, FiCheckCircle, FiPackage, FiUsers, FiLock, FiShoppingCart, FiCpu } from 'react-icons/fi'
 
-function EcosystemShowcase() {
+function NodeCard({ x, y, icon, title, subtitle, color, active, status, large }) {
+  const colorMap = {
+    blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-500' },
+    purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-500' },
+    pink: { bg: 'bg-pink-500/10', border: 'border-pink-500/30', text: 'text-pink-500' },
+    emerald: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-500' },
+    amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-500' },
+  }
+  const c = colorMap[color]
+
   return (
-    <div className="relative w-full h-[550px] bg-slate-50/50 rounded-[40px] border border-slate-200/60 shadow-[inset_0_0_80px_rgba(0,0,0,0.02)] overflow-hidden flex items-center justify-center">
-      
-      {/* Background Dot Grid */}
-      <div 
-        className="absolute inset-0 opacity-[0.3]" 
-        style={{ 
-          backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', 
-          backgroundSize: '32px 32px',
-          backgroundPosition: 'center center'
-        }} 
-      />
+    <motion.div
+      animate={{
+        y: [0, -6, 0],
+        scale: active ? 1.05 : 1,
+        boxShadow: active ? `0 0 30px rgba(0,0,0,0.05), inset 0 0 20px rgba(255,255,255,0.6)` : `0 10px 30px rgba(0,0,0,0.03)`
+      }}
+      transition={{
+        y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" },
+        scale: { duration: 0.3 }
+      }}
+      className={`absolute z-10 flex flex-col items-center -translate-x-1/2 -translate-y-1/2 w-[130px] sm:w-[150px] ${large ? 'sm:w-[190px]' : ''}`}
+      style={{ left: `${x}%`, top: `${y}%` }}
+    >
+      <AnimatePresence>
+        {active && status && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+            className="absolute -top-8 whitespace-nowrap px-2.5 py-1 bg-slate-900 text-white text-[9px] font-bold rounded-full shadow-lg border border-slate-700 z-20"
+          >
+            {status}
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45 border-r border-b border-slate-700" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* SVG Connection Lines */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60">
-        <defs>
-          <linearGradient id="lineGrad1" x1="50%" y1="50%" x2="25%" y2="20%">
-            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="lineGrad2" x1="50%" y1="50%" x2="75%" y2="20%">
-            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="lineGrad3" x1="50%" y1="50%" x2="25%" y2="80%">
-            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
-          </linearGradient>
-          <linearGradient id="lineGrad4" x1="50%" y1="50%" x2="75%" y2="80%">
-            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
-          </linearGradient>
-        </defs>
-
-        <motion.line x1="50" y1="50" x2="20" y2="25" stroke="url(#lineGrad1)" strokeWidth="0.4" strokeDasharray="1 2" strokeLinecap="round"
-          animate={{ strokeDashoffset: [0, -10] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
-        
-        <motion.line x1="50" y1="50" x2="80" y2="25" stroke="url(#lineGrad2)" strokeWidth="0.4" strokeDasharray="1 2" strokeLinecap="round"
-          animate={{ strokeDashoffset: [0, -10] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
-        
-        <motion.line x1="50" y1="50" x2="20" y2="75" stroke="url(#lineGrad3)" strokeWidth="0.4" strokeDasharray="1 2" strokeLinecap="round"
-          animate={{ strokeDashoffset: [0, -10] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
-        
-        <motion.line x1="50" y1="50" x2="80" y2="75" stroke="url(#lineGrad4)" strokeWidth="0.4" strokeDasharray="1 2" strokeLinecap="round"
-          animate={{ strokeDashoffset: [0, -10] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
-      </svg>
-
-      {/* Central Engine Hub */}
-      <motion.div
-        animate={{ scale: [1, 1.05, 1], boxShadow: ['0 0 0 rgba(99,102,241,0)', '0 0 40px rgba(99,102,241,0.3)', '0 0 0 rgba(99,102,241,0)'] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 p-5 rounded-3xl shadow-xl z-20 w-36 h-36 flex flex-col items-center justify-center border border-white/20 backdrop-blur-md"
-      >
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="bg-white/20 p-3 rounded-2xl backdrop-blur-md mb-3"
-        >
-          <FiActivity className="w-8 h-8 text-white" />
-        </motion.div>
-        <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] text-center leading-tight">BazaarBid<br/>Engine</span>
-      </motion.div>
-
-      {/* Top Left: Supplier Verification */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-8 left-4 sm:left-8 bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 w-52 z-10"
-      >
-        <div className="flex items-center gap-3">
-          <div className="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl text-emerald-600 shadow-sm">
-            <FiShield className="w-5 h-5" />
+      <div className={`w-full p-2.5 sm:p-3.5 rounded-2xl backdrop-blur-xl bg-white/70 border ${c.border} shadow-xl transition-colors duration-300 ${active ? 'bg-white/95' : ''}`}>
+        <div className="flex items-center gap-2.5">
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl flex items-center justify-center ${c.bg} ${c.text} ${active ? 'animate-pulse' : ''}`}>
+            {icon}
           </div>
           <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Supplier Auth</p>
-            <p className="text-sm font-bold text-slate-900">KYC Verified</p>
+            <h3 className="text-[10px] sm:text-xs font-black text-slate-800 leading-tight">{title}</h3>
+            <p className="text-[8px] sm:text-[9px] font-bold text-slate-400 mt-0.5">{subtitle}</p>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between bg-slate-50/50 rounded-lg p-2.5 border border-slate-100">
-          <div className="flex items-center gap-1.5">
-            <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-xs font-bold text-slate-600">Trust Score</span>
-          </div>
-          <span className="text-xs font-extrabold text-emerald-600">98/100</span>
-        </div>
-      </motion.div>
+      </div>
+    </motion.div>
+  )
+}
 
-      {/* Top Right: Live Auction Engine */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute top-12 right-4 sm:right-8 bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 w-56 z-10"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 bg-rose-50 px-2 py-1 rounded-md border border-rose-100">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-[9px] font-bold text-rose-600 uppercase tracking-wider">Live Auction</span>
-          </div>
-          <span className="text-xs font-mono font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">00:04:12</span>
-        </div>
-        <div className="space-y-3">
-          <div className="flex justify-between items-end">
-            <span className="text-[11px] font-bold text-slate-500">Winning Bid</span>
-            <motion.span 
-              animate={{ color: ['#0f172a', '#10b981', '#0f172a'], scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-lg font-black text-slate-900"
-            >₹1,240</motion.span>
-          </div>
-          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-            <motion.div 
-              animate={{ width: ['30%', '85%', '95%'] }} 
-              transition={{ duration: 6, repeat: Infinity }}
-              className="bg-indigo-500 h-full rounded-full"
-            />
-          </div>
-        </div>
-      </motion.div>
+function LivingEcosystem() {
+  const [phase, setPhase] = useState(0)
 
-      {/* Bottom Left: Logistics Tracking */}
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-        className="absolute bottom-12 left-4 sm:left-8 bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 w-56 z-10"
-      >
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="bg-purple-50 border border-purple-100 p-2 rounded-xl text-purple-600 shadow-sm">
-            <FiTruck className="w-4 h-4" />
-          </div>
-          <span className="text-xs font-bold text-slate-800">Route Analytics</span>
-        </div>
-        <div className="relative h-1.5 bg-slate-100 rounded-full w-full mt-5 mb-2">
-          <motion.div 
-            animate={{ left: ['0%', '100%'] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 -translate-y-1/2 -ml-2 w-5 h-5 bg-purple-600 rounded-full border-[3px] border-white shadow-md flex items-center justify-center z-10"
-          />
-          {/* Track fill */}
-          <motion.div 
-            animate={{ width: ['0%', '100%'] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-            className="absolute top-0 left-0 h-full bg-purple-200 rounded-full"
-          />
-        </div>
-        <div className="flex justify-between text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
-          <span>Dispatch</span>
-          <span>Delivered</span>
-        </div>
-      </motion.div>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhase((p) => (p + 1) % 6)
+    }, 2800)
+    return () => clearInterval(interval)
+  }, [])
 
-      {/* Bottom Right: Market Analytics */}
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute bottom-8 right-4 sm:right-8 bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 w-52 z-10"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <div className="bg-indigo-50 border border-indigo-100 p-2 rounded-xl text-indigo-600 shadow-sm">
-            <FiTrendingUp className="w-4 h-4" />
-          </div>
-          <span className="text-xs font-bold text-slate-800">Demand Trend</span>
-        </div>
-        <div className="flex items-end gap-1.5 h-16 mt-2 pb-1 border-b border-slate-100">
-          {[40, 65, 45, 80, 55, 95].map((h, i) => (
-            <motion.div
-              key={i}
-              animate={{ height: [`${h}%`, `${Math.max(20, h - 20)}%`, `${h}%`] }}
-              transition={{ duration: 3, repeat: Infinity, delay: i * 0.15 }}
-              className="flex-1 bg-gradient-to-t from-indigo-500 to-purple-500 rounded-sm opacity-90"
-            />
-          ))}
-        </div>
-      </motion.div>
+  const activeRetailerOut = phase === 0
+  const activeEngineOut = phase === 1 || phase === 3
+  const activeSupplierOut = phase === 2
+  const activeLogisticsOut = phase === 4
+  const activeRetailerToConsumer = phase === 5
+
+  return (
+    <div className="relative w-full aspect-[4/5] sm:aspect-square max-w-[600px] flex items-center justify-center mx-auto mt-0 lg:mt-0">
+
+      {/* Background Ambient Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[40%] h-[40%] bg-purple-500/10 blur-[60px] rounded-full pointer-events-none" />
+
+      {/* Connection Lines & Data Flow */}
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible" style={{ filter: 'drop-shadow(0 0 4px rgba(139, 92, 246, 0.4))' }}>
+        <defs>
+          <linearGradient id="retailer-engine" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.5" /><stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" /></linearGradient>
+          <linearGradient id="engine-supplier" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" /><stop offset="100%" stopColor="#ec4899" stopOpacity="0.5" /></linearGradient>
+          <linearGradient id="engine-logistics" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" /><stop offset="100%" stopColor="#10b981" stopOpacity="0.5" /></linearGradient>
+          <linearGradient id="logistics-retailer" x1="100%" y1="100%" x2="0%" y2="100%"><stop offset="0%" stopColor="#10b981" stopOpacity="0.8" /><stop offset="100%" stopColor="#3b82f6" stopOpacity="0.5" /></linearGradient>
+          <linearGradient id="retailer-consumer" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" /><stop offset="100%" stopColor="#f59e0b" stopOpacity="0.5" /></linearGradient>
+        </defs>
+
+        <path d="M 15 75 Q 25 40 45 40" fill="none" stroke="url(#retailer-engine)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {activeRetailerOut && <circle r="1" fill="#60a5fa"><animateMotion dur="1.5s" repeatCount="indefinite" path="M 15 75 Q 25 40 45 40" /></circle>}
+
+        <path d="M 45 40 Q 65 30 85 20" fill="none" stroke="url(#engine-supplier)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {phase === 1 && <circle r="1" fill="#c084fc"><animateMotion dur="1.5s" repeatCount="indefinite" path="M 45 40 Q 65 30 85 20" /></circle>}
+
+        <path d="M 85 20 Q 65 45 45 40" fill="none" stroke="url(#engine-supplier)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {activeSupplierOut && <circle r="1" fill="#f472b6"><animateMotion dur="1.2s" repeatCount="indefinite" path="M 85 20 Q 65 45 45 40" /></circle>}
+
+        <path d="M 45 40 Q 60 65 80 65" fill="none" stroke="url(#engine-logistics)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {phase === 3 && <circle r="1" fill="#34d399"><animateMotion dur="1.5s" repeatCount="indefinite" path="M 45 40 Q 60 65 80 65" /></circle>}
+
+        <path d="M 80 65 Q 45 75 15 75" fill="none" stroke="url(#logistics-retailer)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {activeLogisticsOut && <circle r="1" fill="#10b981"><animateMotion dur="1.5s" repeatCount="indefinite" path="M 80 65 Q 45 75 15 75" /></circle>}
+
+        <path d="M 15 75 Q 25 90 50 85" fill="none" stroke="url(#retailer-consumer)" strokeWidth="0.4" strokeDasharray="1 1" opacity={0.3} />
+        {activeRetailerToConsumer && <circle r="1" fill="#fbbf24"><animateMotion dur="1s" repeatCount="indefinite" path="M 15 75 Q 25 90 50 85" /></circle>}
+      </svg>
+
+      {/* Nodes */}
+      <NodeCard x={15} y={75} icon={<FiShoppingCart size={16} />} title="Retailer Hub" subtitle="Procurement" color="blue" active={phase === 0 || phase === 4 || phase === 5} status={phase === 0 ? "Publishing Req" : phase === 4 ? "Receiving Goods" : phase === 5 ? "Fulfilling Order" : ""} />
+
+      <NodeCard x={45} y={40} icon={<FiCpu size={20} />} title="BazaarBid Core" subtitle="Reverse Auction Engine" color="purple" active={phase === 1 || phase === 2 || phase === 3} status={phase === 1 ? "Broadcasting..." : phase === 2 ? "Ranking Bids..." : phase === 3 ? "Order Confirmed" : ""} large />
+
+      <NodeCard x={85} y={20} icon={<FiShield size={16} />} title="Supplier Net" subtitle="Verified Vendors" color="pink" active={phase === 1 || phase === 2} status={phase === 1 ? "Evaluating Req" : phase === 2 ? "Bidding (₹42/kg)" : ""} />
+
+      <NodeCard x={80} y={65} icon={<FiTruck size={16} />} title="Logistics" subtitle="Fulfillment Fleet" color="emerald" active={phase === 3 || phase === 4} status={phase === 3 ? "Dispatching..." : phase === 4 ? "En Route" : ""} />
+
+      <NodeCard x={50} y={85} icon={<FiUsers size={16} />} title="Consumer" subtitle="Local Shopper" color="amber" active={phase === 5} status={phase === 5 ? "Groceries Delivered!" : ""} />
 
     </div>
   )
@@ -186,20 +126,20 @@ const containerVariants = {
 }
 const itemVariant = {
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 }
 
 export default function Hero() {
   return (
-    <section className="w-full max-w-7xl">
-      <div className="grid items-start gap-10 lg:grid-cols-2 lg:items-center">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="grid lg:grid-cols-2 gap-4 lg:gap-4 min-h-[calc(100vh-100px)]">
 
         {/* ── Left Column ── */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="space-y-7"
+          className="flex flex-col justify-center space-y-7"
         >
           <motion.span
             variants={itemVariant}
@@ -216,7 +156,7 @@ export default function Hero() {
               </span>
             </h1>
             <p className="mt-5 text-base leading-8 text-slate-600 max-w-xl font-medium">
-              BazaarBid brings retailers and verified wholesale suppliers together. 
+              BazaarBid brings retailers and verified wholesale suppliers together.
               Discover true market pricing, secure transactions, and powerful market insights.
             </p>
           </motion.div>
@@ -261,9 +201,9 @@ export default function Hero() {
           initial={{ opacity: 0, x: 28 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.75, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full flex items-center justify-center"
+          className="w-full flex items-center justify-center mr-20"
         >
-          <EcosystemShowcase />
+          <LivingEcosystem />
         </motion.div>
 
       </div>

@@ -4,20 +4,19 @@ import api from '../services/api'
 const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [token, setToken] = useState(() => localStorage.getItem('bb_token'))
-  const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('bb_user')
     if (stored) {
       try {
-        setUser(JSON.parse(stored))
+        return JSON.parse(stored)
       } catch {
         localStorage.removeItem('bb_user')
       }
     }
-  }, [])
+    return null
+  })
+  const [token, setToken] = useState(() => localStorage.getItem('bb_token'))
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (token) {

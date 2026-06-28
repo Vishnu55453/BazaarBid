@@ -32,7 +32,8 @@ const productSchema = new mongoose.Schema({
             values: [
                 'dry_fruits', 'fresh_fruits', 'vegetables', 'grocery', 'spices',
                 'bakery', 'meat_fish', 'organic', 'snacks', 'dairy', 'beverages',
-                'oils', 'rice_wheat', 'sugar_jaggery', 'pickles_papad', 'frozen_foods'
+                'oils', 'rice_wheat', 'sugar_jaggery', 'pickles_papad', 'frozen_foods',
+                'grains_pulses'
             ],
             message: '{VALUE} is not a valid category'
         },
@@ -141,6 +142,11 @@ const productSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
     },
+
+    // Delivery Options
+    deliveryAvailable: { type: Boolean, default: true },
+    deliveryCharges: { type: Number, default: 0 },
+    freeDeliveryAbove: { type: Number },
 
     // SEO
     seoTitle: String,

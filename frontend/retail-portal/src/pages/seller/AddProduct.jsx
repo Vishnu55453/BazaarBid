@@ -42,7 +42,8 @@ export default function AddProduct() {
     originalPurchasePrice: prefill?.purchasePrice ? Number(prefill.purchasePrice) : '',
     sourceSellerId: '',
     deliveryAvailable: true,
-    deliveryCharges: 0,
+    isFreeDelivery: false,
+    deliveryCharges: '',
     freeDeliveryAbove: '',
     tags: ''
   })
@@ -113,6 +114,9 @@ export default function AddProduct() {
         originalProductId: form.originalProductId || undefined,
         originalPurchasePrice: form.originalPurchasePrice ? Number(form.originalPurchasePrice) : null,
         sourceSellerId: form.sourceSellerId || undefined,
+        deliveryAvailable: form.deliveryAvailable,
+        deliveryCharges: form.isFreeDelivery ? 0 : (form.deliveryCharges ? Number(form.deliveryCharges) : 0),
+        freeDeliveryAbove: form.isFreeDelivery ? null : (form.freeDeliveryAbove ? Number(form.freeDeliveryAbove) : null),
       }
       await api.post('/api/products', payload)
       toast.success('Product listed for retail sale!')
@@ -250,79 +254,9 @@ export default function AddProduct() {
               <input type="number" min="1" className={inputClass} placeholder="Unlimited"
                 value={form.maximumOrderQty} onChange={e => set('maximumOrderQty', e.target.value)} />
             </div>
-
-            <div>
-              <label className={labelClass}>Search Tags (comma separated)</label>
-              <input className={inputClass} placeholder="fresh, local, cashew, organic..."
-                value={form.tags} onChange={e => set('tags', e.target.value)} />
-            </div>
-
-            <div className="flex items-end mb-1">
-              <button type="button"
-                onClick={() => set('isOrganic', !form.isOrganic)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold border-2 transition-all w-full justify-center
-                  ${form.isOrganic ? 'bg-emerald-50 border-emerald-400 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
-                <span className={`w-4 h-4 rounded-full border-2 transition-all ${form.isOrganic ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'}`} />
-                Mark as Organic
-              </button>
-            </div>
           </div>
         </div>
 
-        {/* Advanced backend fields */}
-        <div className="bg-white border border-slate-200 rounded-[28px] shadow-xl shadow-slate-100/50 p-6 sm:p-8 space-y-5">
-          <h2 className="text-sm font-black text-slate-700 uppercase tracking-wider">Advanced Product Fields</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Sub Category</label>
-              <input className={inputClass} placeholder="e.g. Premium Kaju"
-                value={form.subCategory} onChange={e => set('subCategory', e.target.value)} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Compare At Price (₹)</label>
-              <input type="number" min="0" step="0.5" className={inputClass}
-                placeholder="Original price for discount display"
-                value={form.compareAtPrice} onChange={e => set('compareAtPrice', e.target.value)} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Original Purchase Price (₹)</label>
-              <input type="number" min="0" step="0.5" className={inputClass}
-                value={form.originalPurchasePrice} onChange={e => set('originalPurchasePrice', e.target.value)} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Original Product ID</label>
-              <input className={inputClass} placeholder="Only for resale products"
-                value={form.originalProductId} onChange={e => set('originalProductId', e.target.value)} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Source Seller ID</label>
-              <input className={inputClass} placeholder="Seller who supplied this item"
-                value={form.sourceSellerId} onChange={e => set('sourceSellerId', e.target.value)} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Bulk Pricing JSON</label>
-              <textarea rows={4} className={inputClass} placeholder='[{"minQuantity":10,"pricePerUnit":90,"discount":5}]'
-                value={form.bulkPricing} onChange={e => set('bulkPricing', e.target.value)} />
-              <p className="text-[10px] mt-1 text-slate-400 font-medium">Optional. Enter valid JSON array for bulk pricing tiers.</p>
-            </div>
-
-            <div className="flex items-center gap-3 mt-5">
-              <button type="button"
-                onClick={() => set('isAvailable', !form.isAvailable)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold border-2 transition-all w-full justify-center
-                  ${form.isAvailable ? 'bg-emerald-50 border-emerald-400 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
-                <span className={`w-4 h-4 rounded-full border-2 transition-all ${form.isAvailable ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'}`} />
-                Available for sale
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Delivery Options */}
         <div className="bg-white border border-slate-200 rounded-[28px] shadow-xl shadow-slate-100/50 p-6 sm:p-8 space-y-5">
@@ -348,16 +282,38 @@ export default function AddProduct() {
 
             {form.deliveryAvailable && (
               <>
-                <div>
-                  <label className={labelClass}>Delivery Charges (₹)</label>
-                  <input type="number" min="0" className={inputClass}
-                    value={form.deliveryCharges} onChange={e => set('deliveryCharges', e.target.value)} />
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-2 cursor-pointer mt-2 pl-2">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                      checked={form.isFreeDelivery}
+                      onChange={(e) => {
+                        set('isFreeDelivery', e.target.checked);
+                        if(e.target.checked) {
+                          set('deliveryCharges', '');
+                          set('freeDeliveryAbove', '');
+                        }
+                      }}
+                    />
+                    <span className="text-sm font-bold text-slate-700">Provide Free Delivery</span>
+                  </label>
                 </div>
-                <div>
-                  <label className={labelClass}>Free Delivery Above (₹)</label>
-                  <input type="number" min="0" className={inputClass} placeholder="E.g. 500"
-                    value={form.freeDeliveryAbove} onChange={e => set('freeDeliveryAbove', e.target.value)} />
-                </div>
+
+                {!form.isFreeDelivery && (
+                  <>
+                    <div>
+                      <label className={labelClass}>Delivery Charges (₹) *</label>
+                      <input type="number" min="0" className={inputClass} required
+                        value={form.deliveryCharges} onChange={e => set('deliveryCharges', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Free Delivery Above (₹) (Optional)</label>
+                      <input type="number" min="0" className={inputClass} placeholder="E.g. 500"
+                        value={form.freeDeliveryAbove} onChange={e => set('freeDeliveryAbove', e.target.value)} />
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

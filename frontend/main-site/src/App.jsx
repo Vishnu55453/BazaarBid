@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 text-slate-900 min-h-screen relative overflow-x-hidden">
-      
+
       {/* Ambient background colors for light mode */}
       <div className="pointer-events-none fixed inset-0 z-0 bg-slate-50">
         <div className="absolute left-1/2 top-1/4 h-[55vw] w-[55vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-100/50 blur-[120px]" />
@@ -36,7 +36,7 @@ export default function App() {
 
       {/* Fixed Nav - Light Mode */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/50 bg-white/70 backdrop-blur-xl shadow-sm">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-20 max-w-8xl items-center justify-between px-4 sm:px-16 lg:px-32">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-2"
@@ -48,17 +48,17 @@ export default function App() {
               BazaarBid
             </span>
           </button>
-          
+
           <div className="hidden items-center gap-8 text-sm font-bold text-slate-500 md:flex">
-            <button onClick={() => scrollToSection('features')}     className="transition hover:text-indigo-600">Features</button>
-            <button onClick={() => scrollToSection('portals')}      className="transition hover:text-indigo-600">Portals</button>
-            <button onClick={() => scrollToSection('pricing')}      className="transition hover:text-indigo-600">Pricing</button>
+            <button onClick={() => scrollToSection('features')} className="transition hover:text-indigo-600">Features</button>
+            <button onClick={() => scrollToSection('portals')} className="transition hover:text-indigo-600">Portals</button>
+            <button onClick={() => scrollToSection('pricing')} className="transition hover:text-indigo-600">Pricing</button>
             <button onClick={() => scrollToSection('testimonials')} className="transition hover:text-indigo-600">Testimonials</button>
           </div>
-          
+
           <div className="hidden items-center gap-4 md:flex">
-            <button 
-              onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })} 
+            <button
+              onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}
               className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition"
             >
               Contact
@@ -74,7 +74,7 @@ export default function App() {
       </nav>
 
       {/* Main Content Sections - Standard Flow */}
-      <div className="relative z-10 flex flex-col pt-32 pb-20 gap-32">
+      <div className="relative z-10 flex flex-col pt-12 pb-20 gap-32">
         <div id="hero" className="w-full flex justify-center px-4 sm:px-6 lg:px-8 pt-8">
           <Hero />
         </div>

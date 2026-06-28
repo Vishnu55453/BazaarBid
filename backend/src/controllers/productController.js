@@ -30,6 +30,9 @@ const createProduct = async (req, res) => {
             tags,
             isAvailable,
             isOrganic,
+            deliveryAvailable,
+            deliveryCharges,
+            freeDeliveryAbove,
             // For resale products (kirana selling bought items)
             isResaleProduct,
             originalProductId,
@@ -101,6 +104,9 @@ const createProduct = async (req, res) => {
             tags: normalizedTags,
             images,
             isAvailable: isAvailable !== undefined ? isAvailable : true,
+            deliveryAvailable: deliveryAvailable !== undefined ? deliveryAvailable : true,
+            deliveryCharges: deliveryCharges || 0,
+            freeDeliveryAbove: freeDeliveryAbove || null,
             sellerShopName,
             sellerMarket,
             sellerRating: seller.rating?.average || 0,
@@ -232,7 +238,7 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
-            .populate('sellerId', 'name email phone role rating location kiranaProfile.asSeller bigMarketProfile')
+            .populate('sellerId', 'name email phone role rating location kiranaProfile.asSeller kiranaProfile.asBuyer bigMarketProfile')
             .populate('originalProductId', 'name pricePerUnit unit')
             .populate('sourceSellerId', 'name');
 
@@ -288,7 +294,10 @@ const updateProduct = async (req, res) => {
             attributes,
             isAvailable,
             isOrganic,
-            isFeatured
+            isFeatured,
+            deliveryAvailable,
+            deliveryCharges,
+            freeDeliveryAbove
         } = req.body;
 
         // Update fields
@@ -307,6 +316,9 @@ const updateProduct = async (req, res) => {
         if (isAvailable !== undefined) product.isAvailable = isAvailable;
         if (isOrganic !== undefined) product.isOrganic = isOrganic;
         if (isFeatured !== undefined && req.user.role === 'admin') product.isFeatured = isFeatured;
+        if (deliveryAvailable !== undefined) product.deliveryAvailable = deliveryAvailable;
+        if (deliveryCharges !== undefined) product.deliveryCharges = deliveryCharges;
+        if (freeDeliveryAbove !== undefined) product.freeDeliveryAbove = freeDeliveryAbove;
 
         // Handle new images if uploaded (local storage)
         if (req.files && req.files.length > 0) {
