@@ -43,11 +43,13 @@ export const useCart = () => {
       const existing = current.find((item) => item.productId === product._id)
 
       if (existing) {
-        return current.map((item) =>
-          item.productId === product._id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        )
+        return current.map((item) => {
+          if (item.productId === product._id) {
+            const max = item.availableStock ?? product.stock ?? Infinity;
+            return { ...item, quantity: Math.min(max, item.quantity + quantity) }
+          }
+          return item;
+        })
       }
 
       return [
@@ -57,7 +59,9 @@ export const useCart = () => {
           name: product.name,
           price: Number(product.pricePerUnit),
           unit: product.unit,
-          quantity,
+          quantity: Math.min(product.stock ?? Infinity, quantity),
+          availableStock: product.stock,
+          minOrderQty: product.minimumOrderQty || 1,
           image: product.images?.[0]?.url || '/placeholder.png',
           sellerName: product.sellerShopName || product.sellerId?.name,
           sellerType: product.sellerType,
@@ -73,9 +77,14 @@ export const useCart = () => {
   const updateQuantity = (productId, quantity) => {
     setCartItems((current) =>
       current
-        .map((item) =>
-          item.productId === productId ? { ...item, quantity: Math.max(1, quantity) } : item
-        )
+        .map((item) => {
+          if (item.productId === productId) {
+             const min = item.minOrderQty || 1;
+             const max = item.availableStock ?? Infinity;
+             return { ...item, quantity: Math.max(min, Math.min(max, quantity)) }
+          }
+          return item;
+        })
         .filter((item) => item.quantity > 0)
     )
   }

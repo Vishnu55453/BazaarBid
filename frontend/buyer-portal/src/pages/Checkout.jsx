@@ -9,8 +9,9 @@ import { formatCurrency } from '../utils/helpers'
 const defaultDelivery = {
   recipientName: '',
   phone: '',
-  addressLine1: '',
-  addressLine2: '',
+  flatOrShopNumber: '',
+  buildingName: '',
+  streetName: '',
   area: '',
   city: '',
   pincode: '',
@@ -89,7 +90,42 @@ const Checkout = () => {
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">Checkout</p>
         <h1 className="mt-3 text-3xl font-semibold text-slate-900">Confirm delivery details</h1>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        {user?.savedAddresses?.length > 0 && (
+          <div className="mt-6">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Select saved address</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {user.savedAddresses.map((addr, idx) => (
+                <div key={idx} onClick={() => {
+                  setDeliveryAddress({
+                    recipientName: addr.recipientName || '',
+                    phone: addr.phone || '',
+                    flatOrShopNumber: addr.flatOrShopNumber || '',
+                    buildingName: addr.buildingName || '',
+                    streetName: addr.streetName || '',
+                    area: addr.area || '',
+                    city: addr.city || '',
+                    pincode: addr.pincode || '',
+                    landmark: addr.landmark || ''
+                  })
+                  toast.success('Address applied')
+                }}
+                  className="cursor-pointer rounded-2xl border border-slate-200 p-4 hover:border-indigo-600 hover:bg-indigo-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-800">{addr.label}</span>
+                    <span className="font-semibold text-slate-900">{addr.recipientName}</span>
+                  </div>
+                  <p className="text-xs text-slate-500">{addr.flatOrShopNumber}, {addr.buildingName}</p>
+                  <p className="text-xs text-slate-500">{addr.streetName}, {addr.area}</p>
+                  <p className="text-xs text-slate-500">{addr.city} - {addr.pincode}</p>
+                </div>
+              ))}
+            </div>
+            <div className="my-6 h-px w-full bg-slate-200"></div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className={user?.savedAddresses?.length > 0 ? "mt-0 space-y-4" : "mt-6 space-y-4"}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Recipient name</span>
@@ -113,23 +149,36 @@ const Checkout = () => {
             </label>
           </div>
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Address line 1</span>
-            <input
-              name="addressLine1"
-              value={deliveryAddress.addressLine1}
-              onChange={handleChange}
-              required
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
-            />
-          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Flat / Shop No.</span>
+              <input
+                name="flatOrShopNumber"
+                value={deliveryAddress.flatOrShopNumber}
+                onChange={handleChange}
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Building Name</span>
+              <input
+                name="buildingName"
+                value={deliveryAddress.buildingName}
+                onChange={handleChange}
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+              />
+            </label>
+          </div>
 
           <label className="block">
-            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Address line 2</span>
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Street Name</span>
             <input
-              name="addressLine2"
-              value={deliveryAddress.addressLine2}
+              name="streetName"
+              value={deliveryAddress.streetName}
               onChange={handleChange}
+              required
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
             />
           </label>

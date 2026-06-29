@@ -29,7 +29,7 @@ const WonAuctions = () => {
 
   if (isLoading) return <Loader text="Loading won auctions..." />;
 
-  const totalRevenue = bids.reduce((sum, bid) => sum + (bid.bidPrice || 0), 0);
+  const totalRevenue = bids.reduce((sum, bid) => sum + (bid.totalBidValue || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -77,7 +77,8 @@ const WonAuctions = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-lg font-bold text-gray-900">
-                            {auction?.productName || 'Product'}
+                            {auction?.items?.[0]?.productName || 'Product'}
+                            {auction?.items?.length > 1 ? ` + ${auction.items.length - 1} more` : ''}
                           </h3>
                           <span className="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
                             WON
@@ -87,7 +88,7 @@ const WonAuctions = () => {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                           <span className="flex items-center">
                             <Package className="w-3.5 h-3.5 mr-1" />
-                            {auction?.quantity} {auction?.unit}
+                            {auction?.items?.[0]?.quantity} {auction?.items?.[0]?.unit}
                           </span>
                           <span className="flex items-center">
                             <MapPin className="w-3.5 h-3.5 mr-1" />
@@ -103,10 +104,10 @@ const WonAuctions = () => {
 
                     <div className="text-right flex-shrink-0">
                       <p className="text-2xl font-black text-gray-900">
-                        ₹{bid.bidPrice?.toLocaleString()}
+                        ₹{bid.totalBidValue?.toLocaleString()}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        ₹{bid.pricePerUnit}/{auction?.unit}
+                        ₹{bid.bidItems?.[0]?.pricePerUnit}/{auction?.items?.[0]?.unit}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
                         Won on {new Date(bid.updatedAt || bid.createdAt).toLocaleDateString()}
@@ -116,7 +117,7 @@ const WonAuctions = () => {
 
                   <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                     <p className="text-xs text-gray-500">
-                      Auction ended · {auction?.category}
+                      Auction ended · {auction?.items?.[0]?.category}
                     </p>
                     <div className="flex gap-4">
                       {auction?.orderId && (

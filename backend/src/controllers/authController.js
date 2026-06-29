@@ -231,6 +231,7 @@ const login = async (req, res) => {
                 location: user.location,
                 subscription: user.subscription,
                 usageMetrics: user.usageMetrics,
+                savedAddresses: user.savedAddresses,
                 features
             }
         };
@@ -302,6 +303,7 @@ const getMe = async (req, res) => {
                 createdAt: user.createdAt,
                 subscription: user.subscription,
                 usageMetrics: user.usageMetrics,
+                savedAddresses: user.savedAddresses,
                 features
             }
         };
@@ -327,7 +329,7 @@ const getMe = async (req, res) => {
 // @access  Private
 const updateProfile = async (req, res) => {
     try {
-        const allowedUpdates = ['name', 'phone', 'location', 'preferences'];
+        const allowedUpdates = ['name', 'phone', 'location', 'preferences', 'savedAddresses'];
         const updateData = {};
         const unsetFields = {};
 

@@ -68,8 +68,9 @@ const orderSchema = new mongoose.Schema({
     deliveryAddress: {
         recipientName: String,
         phone: String,
-        addressLine1: String,
-        addressLine2: String,
+        flatOrShopNumber: String,
+        buildingName: String,
+        streetName: String,
         area: String,
         city: String,
         pincode: { type: String, required: true },

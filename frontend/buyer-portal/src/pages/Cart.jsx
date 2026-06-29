@@ -62,7 +62,8 @@ const Cart = () => {
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                  className="h-9 w-9 rounded-full border border-slate-200 text-lg"
+                  disabled={item.quantity >= (item.availableStock ?? Infinity)}
+                  className={`h-9 w-9 rounded-full border border-slate-200 text-lg transition-colors ${item.quantity >= (item.availableStock ?? Infinity) ? 'opacity-50 cursor-not-allowed bg-slate-50 text-slate-400' : 'hover:bg-slate-50 text-slate-700'}`}
                 >
                   +
                 </button>

@@ -76,6 +76,24 @@ const userSchema = new mongoose.Schema({
     emailVerified: { type: Boolean, default: false },
     phoneVerified: { type: Boolean, default: false },
 
+    // Saved Delivery Addresses (for buyers)
+    savedAddresses: [{
+        label: { type: String, enum: ['Home', 'Office', 'Hotel', 'Other'], default: 'Home' },
+        recipientName: String,
+        phone: String,
+        flatOrShopNumber: String,
+        buildingName: String,
+        streetName: String,
+        area: String,
+        city: String,
+        pincode: {
+            type: String,
+            match: [/^[1-9][0-9]{5}$/, 'Please enter a valid pincode']
+        },
+        landmark: String,
+        isDefault: { type: Boolean, default: false }
+    }],
+
     // KIRANA USER ONLY (Dual Role - Heart of the platform)
     kiranaProfile: {
         // As BUYER (purchasing bulk from big market sellers)

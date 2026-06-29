@@ -11,10 +11,9 @@ const { sendNotification } = require('../services/socketService');
 
 // Helper function to calculate platform commission
 const calculateCommission = (totalAmount, sellerRole) => {
-    // Kirana sellers: 5% commission
-    // Big market sellers: 3% commission on auction wins
-    const rate = sellerRole === 'kirana_user' ? 0.05 : 0.03;
-    return Math.round(totalAmount * rate * 100) / 100;
+    // SaaS Model: Transaction fees are completely eliminated!
+    // Platform revenue is now generated exclusively through Subscription Plans.
+    return 0;
 };
 
 // @desc    Create direct order (Normal Buyer)
@@ -44,6 +43,9 @@ const createDirectOrder = async (req, res) => {
         const validatedItems = [];
         let sellerId = null;
         let seller = null;
+
+        let maxDeliveryCharge = 0;
+        let minFreeDeliveryAbove = Infinity;
 
         for (const item of items) {
             const product = await Product.findById(item.productId).populate('sellerId');
@@ -89,6 +91,13 @@ const createDirectOrder = async (req, res) => {
             const totalPrice = pricePerUnit * item.quantity;
             subtotal += totalPrice;
 
+            if (product.deliveryCharges > maxDeliveryCharge) {
+                maxDeliveryCharge = product.deliveryCharges;
+            }
+            if (product.freeDeliveryAbove && product.freeDeliveryAbove < minFreeDeliveryAbove) {
+                minFreeDeliveryAbove = product.freeDeliveryAbove;
+            }
+
             validatedItems.push({
                 productId: product._id,
                 productName: product.name,
@@ -124,10 +133,18 @@ const createDirectOrder = async (req, res) => {
             seller = await User.findById(sellerId);
         }
 
-        // Calculate delivery charges
-        const deliveryCharges = seller.sellerType === 'kirana_user' ? 20 : 50;
+        // Calculate delivery charges based on product thresholds
+        let deliveryCharges = 0;
+        if (subtotal >= minFreeDeliveryAbove) {
+            deliveryCharges = 0;
+        } else {
+            // Fallback to default if maxDeliveryCharge is 0 but minFreeDeliveryAbove is not met
+            deliveryCharges = maxDeliveryCharge > 0 ? maxDeliveryCharge : (seller.sellerType === 'kirana_user' ? 20 : 50);
+        }
+
         const platformCommission = calculateCommission(subtotal, seller.role);
-        const totalAmount = subtotal + deliveryCharges + platformCommission;
+        // Platform commission is deducted from seller earnings, not added to buyer's total
+        const totalAmount = subtotal + deliveryCharges;
 
         // Calculate delivery date
         const deliveryDate = new Date();
@@ -398,7 +415,7 @@ const updateOrderStatus = async (req, res) => {
             //    auto-sync both their internal Bought Inventory and their retail Storefront listings!
             if (order.orderType === 'auction_won' && order.buyerRole === 'kirana_user' && order.items?.length > 0) {
                 for (const item of order.items) {
-                    
+
                     // 1. Storefront Auto-Sync (The "Killer Feature")
                     let retailProduct = await Product.findOne({
                         sellerId: order.buyerId,
@@ -445,9 +462,9 @@ const updateOrderStatus = async (req, res) => {
                             },
                             {
                                 $inc: { 'kiranaProfile.inventory.$.stock': item.quantity },
-                                $set: { 
+                                $set: {
                                     'kiranaProfile.inventory.$.lastUpdated': new Date(),
-                                    'kiranaProfile.inventory.$.productId': retailProduct._id 
+                                    'kiranaProfile.inventory.$.productId': retailProduct._id
                                 }
                             }
                         );
@@ -584,13 +601,13 @@ const addRating = async (req, res) => {
 
         if (isBuyer) {
             if (order.buyerRated) return res.status(400).json({ message: 'You have already rated this order' });
-            
+
             order.buyerRating = { score: rating, review: review || '', createdAt: new Date() };
             order.buyerRated = true;
             targetUserId = order.sellerId;
         } else {
             if (order.sellerRated) return res.status(400).json({ message: 'You have already rated this order' });
-            
+
             order.sellerRating = { score: rating, review: review || '', createdAt: new Date() };
             order.sellerRated = true;
             targetUserId = order.buyerId;

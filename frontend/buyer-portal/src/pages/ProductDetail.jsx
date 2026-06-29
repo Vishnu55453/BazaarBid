@@ -10,7 +10,7 @@ import { formatCurrency } from '../utils/helpers'
 const ProductDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { addToCart } = useCart()
+  const { addToCart, cartItems } = useCart()
   const { fetchProductById } = useProducts()
 
   const [product, setProduct] = useState(null)
@@ -35,8 +35,17 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!product) return
-    // Add 1 minimum order qty by default
-    addToCart(product, product.minimumOrderQty || 1)
+    
+    const existing = cartItems.find((item) => item.productId === product._id)
+    const currentQty = existing ? existing.quantity : 0
+    const addQty = product.minimumOrderQty || 1
+    
+    if (currentQty + addQty > product.stock) {
+      toast.error(`Cannot add more. Only ${product.stock} ${product.unit} available.`)
+      return
+    }
+
+    addToCart(product, addQty)
     toast.success(`${product.name} added to cart`)
   }
 
