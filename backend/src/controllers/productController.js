@@ -193,23 +193,33 @@ const getProducts = async (req, res) => {
         const sort = {};
         sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
+        // Filter by location/pincode for normal buyers (kirana shops only)
+        if (pincode || area) {
+            const userFilter = { role: 'kirana_user', isActive: true };
+            if (pincode) userFilter['location.pincode'] = pincode;
+            if (area) userFilter['location.area'] = { $regex: area, $options: 'i' };
+
+            const kiranaSellers = await User.find(userFilter).select('_id');
+            const sellerIds = kiranaSellers.map(s => s._id);
+
+            // Override sellerId filter to only include these sellers
+            if (filter.sellerId) {
+                if (!sellerIds.some(id => id.toString() === filter.sellerId.toString())) {
+                    // Requested seller is not in the area, force 0 results
+                    filter.sellerId = { $in: [] };
+                }
+            } else {
+                filter.sellerId = { $in: sellerIds };
+            }
+            filter.sellerType = 'kirana_user';
+        }
+
         // Execute query with pagination
-        let products = await Product.find(filter)
+        const products = await Product.find(filter)
             .populate('sellerId', 'name role rating location kiranaProfile.asSeller bigMarketProfile')
             .sort(sort)
             .limit(parseInt(limit))
             .skip((parseInt(page) - 1) * parseInt(limit));
-
-        // Filter by location/pincode for normal buyers (kirana shops only)
-        if (pincode || area) {
-            products = products.filter(product => {
-                if (product.sellerType !== 'kirana_user') return false;
-                const sellerLocation = product.sellerId?.location;
-                if (pincode && sellerLocation?.pincode !== pincode) return false;
-                if (area && sellerLocation?.area !== area) return false;
-                return true;
-            });
-        }
 
         const total = await Product.countDocuments(filter);
 

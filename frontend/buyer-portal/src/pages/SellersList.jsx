@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Loader from '../components/common/Loader'
+import PincodeModal from '../components/common/PincodeModal'
+import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
 const SellersList = () => {
+  const { activePincode } = useAuth()
   const [sellers, setSellers] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (!activePincode) return
+
     const load = async () => {
       setLoading(true)
       try {
-        const response = await api.get('/api/auth/sellers')
+        const response = await api.get(`/api/auth/sellers?pincode=${activePincode}`)
         setSellers(response.sellers || [])
       } catch (error) {
         setError(error.message)
@@ -23,7 +28,7 @@ const SellersList = () => {
     }
 
     load()
-  }, [])
+  }, [activePincode])
 
   const filtered = sellers.filter((seller) => {
     const haystack = `${seller.name || ''} ${seller.shopName || ''} ${seller.marketName || ''}`.toLowerCase()
@@ -73,7 +78,20 @@ const SellersList = () => {
               </Link>
             </div>
           ))}
+          {filtered.length === 0 && (
+            <div className="col-span-full rounded-[24px] border border-dashed border-slate-300 bg-white px-6 py-8 text-center text-sm text-slate-500">
+              No sellers found in your area. Try a different pincode.
+            </div>
+          )}
         </div>
+      )}
+
+      {!activePincode && (
+        <PincodeModal 
+          isOpen={true} 
+          onClose={() => {}} 
+          isDismissible={false} 
+        />
       )}
     </div>
   )

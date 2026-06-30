@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
     return null
   })
   const [token, setToken] = useState(() => localStorage.getItem('bb_token'))
+  const [activePincode, setActivePincode] = useState(() => localStorage.getItem('bb_pincode') || '')
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -34,10 +35,26 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user])
 
+  useEffect(() => {
+    if (activePincode) {
+      localStorage.setItem('bb_pincode', activePincode)
+    } else {
+      localStorage.removeItem('bb_pincode')
+    }
+  }, [activePincode])
+
   const login = async ({ email, password }) => {
     const response = await api.post('/api/auth/login', { email, password })
     setToken(response.token)
     setUser(response.user)
+    
+    // Automatically set pincode on login if available
+    if (response.user?.location?.pincode) {
+      setActivePincode(response.user.location.pincode)
+    } else if (response.user?.savedAddresses?.[0]?.pincode) {
+      setActivePincode(response.user.savedAddresses[0].pincode)
+    }
+    
     return response
   }
 
@@ -45,17 +62,23 @@ export const AuthProvider = ({ children }) => {
     const response = await api.post('/api/auth/register', payload)
     setToken(response.token)
     setUser(response.user)
+    if (response.user?.location?.pincode) {
+      setActivePincode(response.user.location.pincode)
+    }
     return response
   }
 
   const logout = () => {
     setToken(null)
     setUser(null)
+    setActivePincode('')
   }
 
   const value = useMemo(() => ({
     user,
     token,
+    activePincode,
+    setActivePincode,
     isAuthenticated: Boolean(token && user),
     isLoading,
     setIsLoading,
@@ -63,7 +86,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout
-  }), [user, token, isLoading])
+  }), [user, token, activePincode, isLoading])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

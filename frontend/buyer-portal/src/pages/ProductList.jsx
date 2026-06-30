@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { useCart } from '../hooks/useCart'
 import { useProducts } from '../hooks/useProducts'
+import { useAuth } from '../context/AuthContext'
 import Loader from '../components/common/Loader'
+import PincodeModal from '../components/common/PincodeModal'
 import { categories, sellerTypes, sortOptions } from '../utils/constants'
 import { formatCurrency } from '../utils/helpers'
 
 const ProductList = () => {
   const { addToCart } = useCart()
+  const { activePincode } = useAuth()
   const { products, pagination, loading, error, fetchProducts } = useProducts()
   const [category, setCategory] = useState('')
   const [sellerType, setSellerType] = useState('')
@@ -27,6 +30,8 @@ const ProductList = () => {
   }, [searchQuery])
 
   useEffect(() => {
+    if (!activePincode) return; // Don't fetch if no pincode is set
+
     fetchProducts({
       page,
       limit: 12,
@@ -36,9 +41,10 @@ const ProductList = () => {
       minPrice: priceRange.min,
       maxPrice: priceRange.max,
       sortBy: sortKey.split('-')[0],
-      sortOrder: sortKey.split('-')[1]
+      sortOrder: sortKey.split('-')[1],
+      pincode: activePincode
     }).catch(() => {})
-  }, [category, sellerType, debouncedSearch, priceRange.min, priceRange.max, sortKey, page, fetchProducts])
+  }, [category, sellerType, debouncedSearch, priceRange.min, priceRange.max, sortKey, page, activePincode, fetchProducts])
 
   const sellerTypeLabel = useMemo(() => {
     const option = sellerTypes.find((item) => item.value === sellerType)
@@ -227,6 +233,14 @@ const ProductList = () => {
             Next
           </button>
         </div>
+      )}
+      
+      {!activePincode && (
+        <PincodeModal 
+          isOpen={true} 
+          onClose={() => {}} 
+          isDismissible={false} 
+        />
       )}
     </div>
   )
